@@ -93,6 +93,41 @@ PangYa registry view and then sets the official USA `PANGYA_ARG` before
 starting `ProjectG.exe`; starting the packed executable directly is unsupported
 for this prepared client.
 
+## Public client installer
+
+`installer/pangya-client.iss` is the reproducible Inno Setup definition for the
+public Kallidos PangYa US 852 client. Proprietary client files remain in
+`D:\PangYa\Client` and are supplied only at build time; they are never copied
+into this repository. Build it from the Iris root with:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\build_pangya_client_installer.ps1
+```
+
+The build script verifies pinned hashes for `ProjectG.exe`, both `ijl15` DLLs,
+the language data and the final 851 patch, validates the supported launcher and
+refuses any Rugburn route that does not use `server.kallidos.com` on 10103,
+20202 and 30303. The public installer never writes a hosts-file entry or embeds
+the current public IPv4 address. DNS/DDNS therefore remains responsible for
+mapping `server.kallidos.com` to whichever public address currently belongs to
+Genesis Server.
+
+The special client under `G:\Games\KallidosPangYa` on Genesis-Windows is not a
+public installer source and must not have its local-only connection behavior
+reconciled with this package. It may be inspected read-only to verify immutable
+US 852 runtime assets. The Inno package deliberately excludes that deployment's
+shortcut, logs, captures, temporary files and the preservation archive's old
+`uninstall.exe`. It creates fresh per-user Start Menu and optional Desktop
+shortcuts that call `Start Kallidos PangYa.cmd`; silent installation skips
+launching the game.
+
+By default, the external artifact and checksum are written to
+`D:\PangYa\Installer\Output\Kallidos-PangYa-US852-Setup.exe` and the adjacent
+`.sha256` file. The package is currently unsigned, so Windows may show an
+unknown-publisher or SmartScreen warning until an approved code-signing
+certificate is configured. Do not replace that limitation with a self-signed
+public distribution certificate.
+
 The supervisor considers a service ready when its TCP port is listening on any
 local interface, rather than assuming loopback, and mirrors startup/failure
 diagnostics to `pangya-amp/server.log`. Provisioning requests the host's
@@ -112,3 +147,13 @@ which renders the game name and joystick icon instead of the literal
 ports 20094/20095 and keeps the application services on 7777, 10103, 20202 and
 30303. During maintenance, the controller may remain available without
 starting any of the four game processes or application listeners.
+
+AMP config version 6 expands that page to 61 fields. Forty-six fields are
+persisted directly in the Auth, Login, Game and Message `Config.ini` files;
+the remaining fields control the supervisor, managed announcement and Laragon
+integration. The MetaConfig writers preserve the legacy quoted/unquoted type
+and byte-width suffixes. A verified `runtime-config` junction targets the real
+`D:\PangYa\Server` tree, so Save edits the server files rather than a shadow
+copy. Database usernames/passwords and integration-managed connection wiring
+are excluded and remain under the existing protected configuration/Vault
+contract.

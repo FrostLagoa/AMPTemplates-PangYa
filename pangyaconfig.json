@@ -11,7 +11,8 @@
     "DefaultValue": "Kallidos PangYa",
     "Placeholder": "Kallidos PangYa",
     "Required": true,
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Channel name",
@@ -25,7 +26,8 @@
     "DefaultValue": "Kallidos Channel",
     "Placeholder": "Kallidos Channel",
     "Required": true,
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Channel capacity",
@@ -39,7 +41,8 @@
     "DefaultValue": "200",
     "MinValue": "1",
     "MaxValue": "2000",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Server capacity",
@@ -53,7 +56,8 @@
     "DefaultValue": "2000",
     "MinValue": "1",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Legacy developer credit announcement",
@@ -65,7 +69,11 @@
     "InputType": "checkbox",
     "ParamFieldName": "LegacyDeveloperAnnouncementEnabled",
     "DefaultValue": "false",
-    "EnumValues": {"False": "false", "True": "true"}
+    "EnumValues": {
+      "False": "false",
+      "True": "true"
+    },
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Periodic announcement",
@@ -77,7 +85,11 @@
     "InputType": "checkbox",
     "ParamFieldName": "PeriodicAnnouncementEnabled",
     "DefaultValue": "false",
-    "EnumValues": {"False": "false", "True": "true"}
+    "EnumValues": {
+      "False": "false",
+      "True": "true"
+    },
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Announcement text",
@@ -91,7 +103,8 @@
     "DefaultValue": "Welcome to Kallidos PangYa!",
     "Placeholder": "Welcome to Kallidos PangYa!",
     "Required": false,
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Announcement repetitions",
@@ -105,7 +118,8 @@
     "DefaultValue": "1000",
     "MinValue": "1",
     "MaxValue": "1000000",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Announcement interval (minutes)",
@@ -119,7 +133,8 @@
     "DefaultValue": "30",
     "MinValue": "1",
     "MaxValue": "10080",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Pang rate (%)",
@@ -133,7 +148,8 @@
     "DefaultValue": "100",
     "MinValue": "1",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Experience rate (%)",
@@ -147,7 +163,8 @@
     "DefaultValue": "100",
     "MinValue": "1",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Rare item rate (%)",
@@ -161,7 +178,8 @@
     "DefaultValue": "100",
     "MinValue": "1",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Cookie item rate (%)",
@@ -175,7 +193,8 @@
     "DefaultValue": "100",
     "MinValue": "1",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Scratchy rate (%)",
@@ -189,7 +208,8 @@
     "DefaultValue": "100",
     "MinValue": "1",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Mastery rate (%)",
@@ -203,7 +223,8 @@
     "DefaultValue": "100",
     "MinValue": "1",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Treasure rate (%)",
@@ -217,7 +238,8 @@
     "DefaultValue": "100",
     "MinValue": "1",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Rain rate (%)",
@@ -231,7 +253,8 @@
     "DefaultValue": "100",
     "MinValue": "1",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Angel event",
@@ -242,8 +265,12 @@
     "FieldName": "AngelEventEnabled",
     "InputType": "checkbox",
     "ParamFieldName": "AngelEventEnabled",
-    "DefaultValue": "false",
-    "EnumValues": {"False": "false", "True": "true"}
+    "DefaultValue": "0",
+    "EnumValues": {
+      "Disabled": "0",
+      "Enabled": "1"
+    },
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Server property mask",
@@ -257,7 +284,8 @@
     "DefaultValue": "2048",
     "MinValue": "0",
     "MaxValue": "2147483647",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Feature block mask",
@@ -271,7 +299,8 @@
     "DefaultValue": "0",
     "MinValue": "0",
     "MaxValue": "2147483647",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Event flag mask",
@@ -285,7 +314,8 @@
     "DefaultValue": "0",
     "MinValue": "0",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Server icon",
@@ -299,7 +329,8 @@
     "DefaultValue": "1",
     "MinValue": "0",
     "MaxValue": "32767",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "PangYa server folder",
@@ -313,7 +344,8 @@
     "DefaultValue": "D:\\PangYa\\Server",
     "Placeholder": "D:\\PangYa\\Server",
     "Required": true,
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Laragon MySQL host",
@@ -327,7 +359,8 @@
     "DefaultValue": "127.0.0.1",
     "Placeholder": "127.0.0.1",
     "Required": true,
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Laragon MySQL port",
@@ -341,7 +374,8 @@
     "DefaultValue": "3306",
     "MinValue": "1",
     "MaxValue": "65535",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Database name",
@@ -355,7 +389,8 @@
     "DefaultValue": "pangya",
     "Placeholder": "pangya",
     "Required": true,
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Laragon MySQL client",
@@ -369,7 +404,8 @@
     "DefaultValue": "D:\\Laragon\\bin\\mysql\\mysql-8.4.3-winx64\\bin\\mysql.exe",
     "Placeholder": "D:\\Laragon\\bin\\mysql\\mysql-8.4.3-winx64\\bin\\mysql.exe",
     "Required": true,
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Restart after a crash",
@@ -381,7 +417,11 @@
     "InputType": "checkbox",
     "ParamFieldName": "AutoRestart",
     "DefaultValue": "true",
-    "EnumValues": {"False": "false", "True": "true"}
+    "EnumValues": {
+      "False": "false",
+      "True": "true"
+    },
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Restart attempt limit",
@@ -395,7 +435,8 @@
     "DefaultValue": "3",
     "MinValue": "0",
     "MaxValue": "10",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Restart backoff (seconds)",
@@ -409,7 +450,8 @@
     "DefaultValue": "5",
     "MinValue": "1",
     "MaxValue": "60",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Startup timeout (seconds)",
@@ -423,7 +465,8 @@
     "DefaultValue": "180",
     "MinValue": "30",
     "MaxValue": "900",
-    "EnumValues": {}
+    "EnumValues": {},
+    "IncludeInCommandLine": true
   },
   {
     "DisplayName": "Shutdown timeout (seconds)",
@@ -437,6 +480,384 @@
     "DefaultValue": "30",
     "MinValue": "10",
     "MaxValue": "120",
+    "EnumValues": {},
+    "IncludeInCommandLine": true
+  },
+  {
+    "DisplayName": "Server Name",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Auth Server:server:10",
+    "Description": "Persisted in Auth Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "servername",
+    "FieldName": "CfgPangyaAuthServerConfigIniServerName",
+    "InputType": "text",
+    "ParamFieldName": "CfgPangyaAuthServerConfigIniServerName",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "AuthServer",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Version",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Auth Server:server:10",
+    "Description": "Persisted in Auth Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverversion",
+    "FieldName": "CfgPangyaAuthServerConfigIniServerVersion",
+    "InputType": "text",
+    "ParamFieldName": "CfgPangyaAuthServerConfigIniServerVersion",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "None",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Packet Version",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Auth Server:server:10",
+    "Description": "Persisted in Auth Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverpacketversion",
+    "FieldName": "CfgPangyaAuthServerConfigIniServerPacketVersion",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaAuthServerConfigIniServerPacketVersion",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "2016110200",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Guid",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Auth Server:server:10",
+    "Description": "Persisted in Auth Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverguid",
+    "FieldName": "CfgPangyaAuthServerConfigIniServerGUID",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaAuthServerConfigIniServerGUID",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "7777",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Gsmax User",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Auth Server:server:10",
+    "Description": "Persisted in Auth Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "gsmaxuser",
+    "FieldName": "CfgPangyaAuthServerConfigIniGSMaxUser",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaAuthServerConfigIniGSMaxUser",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "10",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Name",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Login Server:server:11",
+    "Description": "Persisted in Login Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "servername",
+    "FieldName": "CfgPangyaLoginServerConfigIniServerName",
+    "InputType": "text",
+    "ParamFieldName": "CfgPangyaLoginServerConfigIniServerName",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "LoginServer",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Version",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Login Server:server:11",
+    "Description": "Persisted in Login Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverversion",
+    "FieldName": "CfgPangyaLoginServerConfigIniServerVersion",
+    "InputType": "text",
+    "ParamFieldName": "CfgPangyaLoginServerConfigIniServerVersion",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "None",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Packet Version",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Login Server:server:11",
+    "Description": "Persisted in Login Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverpacketversion",
+    "FieldName": "CfgPangyaLoginServerConfigIniServerPacketVersion",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaLoginServerConfigIniServerPacketVersion",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "2016110200",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Guid",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Login Server:server:11",
+    "Description": "Persisted in Login Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverguid",
+    "FieldName": "CfgPangyaLoginServerConfigIniServerGUID",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaLoginServerConfigIniServerGUID",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "10101",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Gsmax User",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Login Server:server:11",
+    "Description": "Persisted in Login Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "gsmaxuser",
+    "FieldName": "CfgPangyaLoginServerConfigIniGSMaxUser",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaLoginServerConfigIniGSMaxUser",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "2000",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Create Account",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Login Server:server:11",
+    "Description": "Persisted in Login Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "createaccount",
+    "FieldName": "CfgPangyaLoginServerConfigIniCreateAccount",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaLoginServerConfigIniCreateAccount",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "0",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Access Flag",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Login Server:server:11",
+    "Description": "Persisted in Login Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "accessflag",
+    "FieldName": "CfgPangyaLoginServerConfigIniAccessFlag",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaLoginServerConfigIniAccessFlag",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "1",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Version",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverversion",
+    "FieldName": "CfgPangyaGameServerConfigIniServerVersion",
+    "InputType": "text",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniServerVersion",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "None",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Packet Version",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverpacketversion",
+    "FieldName": "CfgPangyaGameServerConfigIniServerPacketVersion",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniServerPacketVersion",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "2016110200",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Guid",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverguid",
+    "FieldName": "CfgPangyaGameServerConfigIniServerGUID",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniServerGUID",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "20202",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Canais Count",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "canaiscount",
+    "FieldName": "CfgPangyaGameServerConfigIniCanaisCount",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniCanaisCount",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "1",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Canal ID 1",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "canalid,1",
+    "FieldName": "CfgPangyaGameServerConfigIniCanalID1",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniCanalID1",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "0",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Canal Name 2",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "canalname,2",
+    "FieldName": "CfgPangyaGameServerConfigIniCanalName2",
+    "InputType": "text",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniCanalName2",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "Free Channel 1",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Canal Max User 2",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "canalmaxuser,2",
+    "FieldName": "CfgPangyaGameServerConfigIniCanalMaxUser2",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniCanalMaxUser2",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "200",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Canal ID 2",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "canalid,2",
+    "FieldName": "CfgPangyaGameServerConfigIniCanalID2",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniCanalID2",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "1",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Canal Name 3",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "canalname,3",
+    "FieldName": "CfgPangyaGameServerConfigIniCanalName3",
+    "InputType": "text",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniCanalName3",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "Free Channel 2",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Canal Max User 3",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "canalmaxuser,3",
+    "FieldName": "CfgPangyaGameServerConfigIniCanalMaxUser3",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniCanalMaxUser3",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "200",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Canal ID 3",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "canalid,3",
+    "FieldName": "CfgPangyaGameServerConfigIniCanalID3",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniCanalID3",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "2",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Name",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Message Server:server:13",
+    "Description": "Persisted in Message Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "servername",
+    "FieldName": "CfgPangyaMessageServerConfigIniServerName",
+    "InputType": "text",
+    "ParamFieldName": "CfgPangyaMessageServerConfigIniServerName",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "Message Server",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Version",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Message Server:server:13",
+    "Description": "Persisted in Message Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverversion",
+    "FieldName": "CfgPangyaMessageServerConfigIniServerVersion",
+    "InputType": "text",
+    "ParamFieldName": "CfgPangyaMessageServerConfigIniServerVersion",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "None",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Packet Version",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Message Server:server:13",
+    "Description": "Persisted in Message Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverpacketversion",
+    "FieldName": "CfgPangyaMessageServerConfigIniServerPacketVersion",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaMessageServerConfigIniServerPacketVersion",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "2016110200",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Guid",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Message Server:server:13",
+    "Description": "Persisted in Message Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverguid",
+    "FieldName": "CfgPangyaMessageServerConfigIniServerGUID",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaMessageServerConfigIniServerGUID",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "30303",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Server Property",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Message Server:server:13",
+    "Description": "Persisted in Message Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "serverproperty",
+    "FieldName": "CfgPangyaMessageServerConfigIniServerProperty",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaMessageServerConfigIniServerProperty",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "4096",
+    "EnumValues": {}
+  },
+  {
+    "DisplayName": "Gsmax User",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Message Server:server:13",
+    "Description": "Persisted in Message Server/Config.ini. The server may require a restart before it takes effect.",
+    "Keywords": "gsmaxuser",
+    "FieldName": "CfgPangyaMessageServerConfigIniGSMaxUser",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaMessageServerConfigIniGSMaxUser",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "2000",
     "EnumValues": {}
   }
 ]

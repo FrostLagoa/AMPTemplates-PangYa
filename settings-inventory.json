@@ -1,0 +1,13 @@
+{
+  "game": "PangYa",
+  "category": "PangYa:gamepad",
+  "generated_settings": 46,
+  "total_fields": 61,
+  "config_files": [
+    "Auth Server/Config.ini",
+    "Game Server/Config.ini",
+    "Login Server/Config.ini",
+    "Message Server/Config.ini"
+  ],
+  "excluded_contract": "Credentials, passwords, Vault material and integration-managed database connection strings are never exposed."
+}

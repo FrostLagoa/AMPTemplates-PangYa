@@ -336,6 +336,7 @@ $StartupTimeoutSeconds = [Math]::Max(30, [Math]::Min(900, $StartupTimeoutSeconds
 $ShutdownTimeoutSeconds = [Math]::Max(10, [Math]::Min(120, $ShutdownTimeoutSeconds))
 $ServerRoot = Assert-SafePath $ServerRoot "ServerRoot"
 $DatabaseClientPath = Assert-SafePath $DatabaseClientPath "DatabaseClientPath"
+& (Join-Path $PSScriptRoot "amp-config-link.ps1") -ServerRoot $ServerRoot
 $DatabaseHost = $DatabaseHost.Trim()
 $DatabaseName = $DatabaseName.Trim()
 $ServerDisplayName = Assert-SafeDisplayText $ServerDisplayName "ServerDisplayName" 40

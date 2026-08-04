@@ -1,1 +1,204 @@
-[]
+[
+  {
+    "ConfigFile": "runtime-config/Auth Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = \"{1}\", CHAR, 40;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\"(?<value>.*?)\"\\s*,\\s*CHAR\\s*,\\s*40\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "ServerName": "CfgPangyaAuthServerConfigIniServerName",
+          "ServerVersion": "CfgPangyaAuthServerConfigIniServerVersion"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Auth Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = {1}, INT32, 4;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT32\\s*,\\s*4\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "ServerPacketVersion": "CfgPangyaAuthServerConfigIniServerPacketVersion",
+          "ServerGUID": "CfgPangyaAuthServerConfigIniServerGUID",
+          "GSMaxUser": "CfgPangyaAuthServerConfigIniGSMaxUser"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Login Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = \"{1}\", CHAR, 40;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\"(?<value>.*?)\"\\s*,\\s*CHAR\\s*,\\s*40\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "ServerName": "CfgPangyaLoginServerConfigIniServerName",
+          "ServerVersion": "CfgPangyaLoginServerConfigIniServerVersion"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Login Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = {1}, INT32, 4;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT32\\s*,\\s*4\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "ServerPacketVersion": "CfgPangyaLoginServerConfigIniServerPacketVersion",
+          "ServerGUID": "CfgPangyaLoginServerConfigIniServerGUID",
+          "GSMaxUser": "CfgPangyaLoginServerConfigIniGSMaxUser",
+          "CreateAccount": "CfgPangyaLoginServerConfigIniCreateAccount",
+          "AccessFlag": "CfgPangyaLoginServerConfigIniAccessFlag"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = \"{1}\", CHAR, 40;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\"(?<value>.*?)\"\\s*,\\s*CHAR\\s*,\\s*40\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "ServerName": "ServerDisplayName",
+          "ServerVersion": "CfgPangyaGameServerConfigIniServerVersion"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = {1}, INT32, 4;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT32\\s*,\\s*4\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "ServerPacketVersion": "CfgPangyaGameServerConfigIniServerPacketVersion",
+          "ServerGUID": "CfgPangyaGameServerConfigIniServerGUID",
+          "ServerProperty": "ServerPropertyMask",
+          "GSMaxUser": "ServerMaxUsers",
+          "CanaisCount": "CfgPangyaGameServerConfigIniCanaisCount"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = {1}, INT64, 8;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT64\\s*,\\s*8\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "ServerFlag": "ServerFeatureBlockMask"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = {1}, INT16, 2;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT16\\s*,\\s*2\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "ServerEventFlag": "ServerEventFlagMask",
+          "ServerRareItemRate": "RareItemRate",
+          "ServerCookieItemRate": "CookieItemRate",
+          "ServerPangRate": "PangRate",
+          "ServerExpRate": "ExperienceRate",
+          "ServerAngelEvent": "AngelEventEnabled",
+          "ServerScratchRate": "ScratchyRate",
+          "ServerMasteryRate": "MasteryRate",
+          "ServerTreasureRate": "TreasureRate",
+          "ServerChuvaRate": "RainRate",
+          "ServerIcon": "ServerIcon",
+          "CanalMaxUser_1": "ChannelMaxUsers",
+          "CanalMaxUser_2": "CfgPangyaGameServerConfigIniCanalMaxUser2",
+          "CanalMaxUser_3": "CfgPangyaGameServerConfigIniCanalMaxUser3"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = \"{1}\", CHAR, 64;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\"(?<value>.*?)\"\\s*,\\s*CHAR\\s*,\\s*64\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "CanalName_1": "ChannelName",
+          "CanalName_2": "CfgPangyaGameServerConfigIniCanalName2",
+          "CanalName_3": "CfgPangyaGameServerConfigIniCanalName3"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = {1}, INT8, 1;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT8\\s*,\\s*1\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "CanalID_1": "CfgPangyaGameServerConfigIniCanalID1",
+          "CanalID_2": "CfgPangyaGameServerConfigIniCanalID2",
+          "CanalID_3": "CfgPangyaGameServerConfigIniCanalID3"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Message Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = \"{1}\", CHAR, 40;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\"(?<value>.*?)\"\\s*,\\s*CHAR\\s*,\\s*40\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "ServerName": "CfgPangyaMessageServerConfigIniServerName",
+          "ServerVersion": "CfgPangyaMessageServerConfigIniServerVersion"
+        }
+      }
+    ]
+  },
+  {
+    "ConfigFile": "runtime-config/Message Server/Config.ini",
+    "ConfigType": "kvp",
+    "ConfigFormat": "{0} = {1}, INT32, 4;",
+    "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT32\\s*,\\s*4\\s*;\\s*$",
+    "Subsections": [
+      {
+        "Heading": "$root",
+        "SettingMappings": {
+          "ServerPacketVersion": "CfgPangyaMessageServerConfigIniServerPacketVersion",
+          "ServerGUID": "CfgPangyaMessageServerConfigIniServerGUID",
+          "ServerProperty": "CfgPangyaMessageServerConfigIniServerProperty",
+          "GSMaxUser": "CfgPangyaMessageServerConfigIniGSMaxUser"
+        }
+      }
+    ]
+  }
+]
