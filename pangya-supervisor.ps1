@@ -33,7 +33,8 @@ param(
     [int]$RestartLimit = 3,
     [int]$RestartBackoffSeconds = 5,
     [int]$StartupTimeoutSeconds = 180,
-    [int]$ShutdownTimeoutSeconds = 30
+    [int]$ShutdownTimeoutSeconds = 30,
+    [switch]$ValidateOnly = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -546,6 +547,10 @@ try {
     Assert-RuntimeIntegrity
     $gameConfigText = Sync-GameServerConfiguration
     Sync-ManagedAnnouncement -GameConfigText $gameConfigText
+    if ($ValidateOnly) {
+        Write-SupervisorLine "[supervisor] SETTINGS_VALIDATED"
+        exit 0
+    }
     Start-ServiceSet
     $inputClosed = $false
     $readTask = [Console]::In.ReadLineAsync()
