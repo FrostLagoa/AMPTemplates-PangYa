@@ -24,6 +24,7 @@ param(
     [int]$ServerFeatureBlockMask = 0,
     [int]$ServerEventFlagMask = 0,
     [int]$ServerIcon = 1,
+    [string]$LegacyDeveloperAnnouncementEnabled = "false",
     [string]$PeriodicAnnouncementEnabled = "false",
     [string]$PeriodicAnnouncementText = "Welcome to Kallidos PangYa!",
     [int]$PeriodicAnnouncementRepeatCount = 1000,
@@ -225,6 +226,47 @@ VALUES(0, @iris_notice_id, $magic, 1, $GamePort, NOW(), 1);
     Write-SupervisorLine ("[supervisor] ANNOUNCEMENT enabled interval_minutes={0} repetitions={1}" -f $PeriodicAnnouncementIntervalMinutes, $PeriodicAnnouncementRepeatCount)
 }
 
+function Sync-LegacyDeveloperAnnouncement {
+    $gameServerPath = Join-Path (Join-Path $ServerRoot "Game Server") "Game Server.exe"
+    $timerOffset = 0x95AB8
+    [byte[]]$enabledBytes = 0xC0, 0x27, 0x09, 0x00
+    [byte[]]$disabledBytes = 0xFF, 0xFF, 0xFF, 0xFF
+    [byte[]]$expectedPrefix = 0x4A, 0x00, 0x83, 0xC4, 0x04, 0x8B, 0xF0, 0x68
+    [byte[]]$expectedSuffix = 0xFF, 0xD7, 0x83, 0xEC
+    $bytes = [IO.File]::ReadAllBytes($gameServerPath)
+    if ($bytes.Length -lt ($timerOffset + 8)) { throw "The PangYa Game Server binary is too small for the verified announcement contract" }
+    for ($index = 0; $index -lt $expectedPrefix.Length; $index++) {
+        if ($bytes[$timerOffset - $expectedPrefix.Length + $index] -ne $expectedPrefix[$index]) {
+            throw "The PangYa legacy announcement prefix does not match the verified build"
+        }
+    }
+    for ($index = 0; $index -lt $expectedSuffix.Length; $index++) {
+        if ($bytes[$timerOffset + 4 + $index] -ne $expectedSuffix[$index]) {
+            throw "The PangYa legacy announcement suffix does not match the verified build"
+        }
+    }
+    $current = [byte[]]$bytes[$timerOffset..($timerOffset + 3)]
+    $enabled = [BitConverter]::ToString($current) -eq [BitConverter]::ToString($enabledBytes)
+    $disabled = [BitConverter]::ToString($current) -eq [BitConverter]::ToString($disabledBytes)
+    if (-not $enabled -and -not $disabled) {
+        throw "The PangYa legacy announcement timer is neither the verified original nor managed disabled value"
+    }
+    [byte[]]$desired = if ($legacyAnnouncementEnabled) { $enabledBytes } else { $disabledBytes }
+    if ([BitConverter]::ToString($current) -ne [BitConverter]::ToString($desired)) {
+        $stream = [IO.File]::Open($gameServerPath, [IO.FileMode]::Open, [IO.FileAccess]::Write, [IO.FileShare]::None)
+        try {
+            [void]$stream.Seek($timerOffset, [IO.SeekOrigin]::Begin)
+            $stream.Write($desired, 0, $desired.Length)
+            $stream.Flush($true)
+        }
+        finally {
+            $stream.Dispose()
+        }
+    }
+    $state = if ($legacyAnnouncementEnabled) { "enabled" } else { "disabled" }
+    Write-SupervisorLine "[supervisor] LEGACY_DEVELOPER_ANNOUNCEMENT $state"
+}
+
 function Test-TcpPort {
     param([string]$HostName = "127.0.0.1", [int]$Port, [int]$TimeoutMilliseconds = 500)
     $client = [Net.Sockets.TcpClient]::new()
@@ -280,6 +322,7 @@ function Resolve-PrimaryIPv4Address {
 
 $restartEnabled = ConvertTo-Switch $AutoRestart
 $angelEvent = ConvertTo-Switch $AngelEventEnabled
+$legacyAnnouncementEnabled = ConvertTo-Switch $LegacyDeveloperAnnouncementEnabled
 $announcementEnabled = ConvertTo-Switch $PeriodicAnnouncementEnabled
 $RestartLimit = [Math]::Max(0, [Math]::Min(10, $RestartLimit))
 $RestartBackoffSeconds = [Math]::Max(1, [Math]::Min(60, $RestartBackoffSeconds))
@@ -320,7 +363,10 @@ $serviceDefinitions = @(
 
 $expectedHashes = @{
     "Auth Server\Auth Server.exe" = "B69A11DC8817805C0D44A75EA3FB19D4DAC84A51185C5C58FBC2620A58B7C2F1"
-    "Game Server\Game Server.exe" = "BEF3D470173DB97C9074705FB98552E5922BDD8A30BC9F1F7D2D95723A941C70"
+    "Game Server\Game Server.exe" = @(
+        "BEF3D470173DB97C9074705FB98552E5922BDD8A30BC9F1F7D2D95723A941C70",
+        "83D7A9888C89B5F0ACCD044D4A915B53CC3C72EC9389713A1D299C6BCA1B2233"
+    )
     "Login Server\LoginServer.exe" = "C0724774B9373584F5DA0A5FB9EAC5039141196338915BE022332598DDB33294"
     "Message Server\Message Server.exe" = "95AA4574B1806C6BD27093836F5C8C529CD65725124D8CF1AB2459378C63799E"
 }
@@ -335,7 +381,8 @@ function Assert-RuntimeIntegrity {
         $path = Join-Path $ServerRoot $relativePath
         if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Required PangYa file is missing: $relativePath" }
         $actual = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
-        if (-not $actual.Equals($expectedHashes[$relativePath], [StringComparison]::OrdinalIgnoreCase)) {
+        $allowedHashes = @($expectedHashes[$relativePath])
+        if (-not ($allowedHashes -contains $actual)) {
             throw "PangYa runtime integrity check failed: $relativePath"
         }
     }
@@ -545,6 +592,7 @@ try {
         throw "Laragon MySQL is unavailable at ${DatabaseHost}:$DatabasePort"
     }
     Assert-RuntimeIntegrity
+    Sync-LegacyDeveloperAnnouncement
     $gameConfigText = Sync-GameServerConfiguration
     Sync-ManagedAnnouncement -GameConfigText $gameConfigText
     if ($ValidateOnly) {

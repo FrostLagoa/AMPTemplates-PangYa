@@ -37,7 +37,7 @@ one validated operation.
 
 The production Game Server exposes one unrestricted channel named `Kallidos
 Channel` with `CanaisCount=1`, ID 0, capacity 200 and `CanalFlag_1=1`.
-AMP config version 4 exposes the safe operational subset of the legacy Game
+AMP config version 5 exposes the safe operational subset of the legacy Game
 Server configuration: server/channel identity and capacity, Pang, experience,
 rare-item, Cookie-item, Scratchy, mastery, treasure and rain rates, Angel
 event state, server icon and the advanced property/event/feature masks. The
@@ -46,16 +46,25 @@ before any child process starts. Only that one protected file grants
 `NETWORK SERVICE` modify access; the three other credential-bearing service
 configurations remain read-only to the runtime identity.
 
-The same page controls one optional periodic announcement through PangYa's
+The historical Game Server executable also contains its own developer-credit
+announcement (`Esse Server foi Desenvolvido por Acrisio xD.`). In the pinned
+build, its timer immediate is the four-byte value `600000` at file offset
+`0x95AB8`. AMP exposes a separate reversible toggle for that legacy credit,
+disabled by default. The supervisor accepts only the pinned original and
+managed-disabled hashes, validates the surrounding machine-code signature and
+changes only that timer value (`600000` / `INFINITE`); an unknown binary or
+unexpected byte sequence is rejected before launch.
+
+The same page controls one optional administrator-defined periodic announcement through PangYa's
 native `pangya_notice_list` / `pangya_command` queue. Text, repetition count
 and interval are editable. The managed row is marked with reserved command
 arguments so disabling or replacing it never removes notices created by an
 administrator or another tool. The default is disabled. Database credentials
 are read from the protected Game Server configuration and passed to the local
 Laragon client only in its child-process environment; they are never stored in
-AMP settings, command-line arguments or logs. The `Acrisio SuperSS Dev` text
-embedded in the historical executables is their console startup credit, not a
-native scheduled notice and is not modified.
+AMP settings, command-line arguments or logs. This managed notice is independent
+from the executable's legacy developer-credit announcement and its console
+startup banner.
 
 Provisioning also normalizes the four legacy card-reader procedures that
 compared `DATETIME` columns with empty strings. They use explicit NULL

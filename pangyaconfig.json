@@ -56,6 +56,18 @@
     "EnumValues": {}
   },
   {
+    "DisplayName": "Legacy developer credit announcement",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Announcements:bullhorn:2",
+    "Description": "Allow the periodic credit message embedded in this verified historical Game Server build. Keep disabled to suppress it without changing managed announcements.",
+    "Keywords": "pangya,legacy,developer,credit,announcement,acrisio",
+    "FieldName": "LegacyDeveloperAnnouncementEnabled",
+    "InputType": "checkbox",
+    "ParamFieldName": "LegacyDeveloperAnnouncementEnabled",
+    "DefaultValue": "false",
+    "EnumValues": {"False": "false", "True": "true"}
+  },
+  {
     "DisplayName": "Periodic announcement",
     "Category": "PangYa:gamepad",
     "Subcategory": "Announcements:bullhorn:2",
