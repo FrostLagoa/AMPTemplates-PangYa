@@ -21,6 +21,18 @@ $script:exitCode = 0
 $script:services = @()
 $script:restartCount = 0
 $script:setStartedAt = [DateTime]::MinValue
+$script:logPath = Join-Path $PSScriptRoot "server.log"
+
+function Write-SupervisorLine {
+    param([string]$Message)
+    [Console]::WriteLine($Message)
+    try {
+        $timestamp = [DateTime]::UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+        $entry = "[$timestamp] $Message$([Environment]::NewLine)"
+        [IO.File]::AppendAllText($script:logPath, $entry, [Text.UTF8Encoding]::new($false))
+    }
+    catch {}
+}
 
 function ConvertTo-Switch {
     param([string]$Value)
@@ -45,6 +57,47 @@ function Test-TcpPort {
     }
     catch { return $false }
     finally { $client.Dispose() }
+}
+
+function Test-LocalTcpListener {
+    param([int]$Port)
+    try {
+        $listeners = [Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties().GetActiveTcpListeners()
+        return @($listeners | Where-Object Port -eq $Port).Count -gt 0
+    }
+    catch {
+        return Test-TcpPort -Port $Port
+    }
+}
+
+function Get-LocalTcpListenerAddresses {
+    param([int]$Port)
+    try {
+        return @(
+            [Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties().GetActiveTcpListeners() |
+                Where-Object { $_.Port -eq $Port -and $_.Address.AddressFamily -eq [Net.Sockets.AddressFamily]::InterNetwork } |
+                ForEach-Object { $_.Address.ToString() } |
+                Sort-Object -Unique
+        )
+    }
+    catch {
+        return @()
+    }
+}
+
+function Resolve-PrimaryIPv4Address {
+    $client = [Net.Sockets.UdpClient]::new([Net.Sockets.AddressFamily]::InterNetwork)
+    try {
+        $client.Connect("1.1.1.1", 53)
+        $address = ([Net.IPEndPoint]$client.Client.LocalEndPoint).Address
+    }
+    finally {
+        $client.Dispose()
+    }
+    if ($null -eq $address -or $address.Equals([Net.IPAddress]::Any) -or $address.Equals([Net.IPAddress]::Loopback)) {
+        throw "Could not resolve the PangYa public listener address."
+    }
+    return $address.ToString()
 }
 
 $restartEnabled = ConvertTo-Switch $AutoRestart
@@ -113,12 +166,13 @@ function Start-ServiceProcess {
     $state = [pscustomobject]@{
         Name = $Definition.Name
         Port = [int]$Definition.Port
+        ListenerAddress = ""
         Process = $process
         StdoutTask = $process.StandardOutput.ReadLineAsync()
         StderrTask = $process.StandardError.ReadLineAsync()
     }
     $script:services += $state
-    [Console]::WriteLine(("[supervisor] STARTED service={0} pid={1} port={2}" -f $state.Name, $process.Id, $state.Port))
+    Write-SupervisorLine ("[supervisor] STARTED service={0} pid={1} port={2}" -f $state.Name, $process.Id, $state.Port)
 }
 
 function Drain-ServiceOutput {
@@ -131,14 +185,14 @@ function Drain-ServiceOutput {
             while ($null -ne $task -and $task.IsCompleted) {
                 try { $line = $task.GetAwaiter().GetResult() }
                 catch {
-                    [Console]::WriteLine(("[{0}] OUTPUT_READ_FAILED {1}" -f $stream.Prefix, $_.Exception.Message))
+                    Write-SupervisorLine ("[{0}] OUTPUT_READ_FAILED {1}" -f $stream.Prefix, $_.Exception.Message)
                     $line = $null
                 }
                 if ($null -eq $line) {
                     $state.($stream.TaskProperty) = $null
                     break
                 }
-                [Console]::WriteLine(("[{0}] {1}" -f $stream.Prefix, $line))
+                Write-SupervisorLine ("[{0}] {1}" -f $stream.Prefix, $line)
                 $task = $stream.Reader.ReadLineAsync()
                 $state.($stream.TaskProperty) = $task
             }
@@ -146,16 +200,61 @@ function Drain-ServiceOutput {
     }
 }
 
-function Wait-PortReady {
+function Wait-ServiceListener {
     param([string]$ServiceName, [int]$Port, [DateTime]$Deadline)
     do {
         Drain-ServiceOutput
         $state = $script:services | Where-Object Name -eq $ServiceName | Select-Object -First 1
-        if ($null -eq $state -or $state.Process.HasExited) { return $false }
-        if (Test-TcpPort -Port $Port) { return $true }
+        if ($null -eq $state -or $state.Process.HasExited) { return $null }
+        $addresses = @(Get-LocalTcpListenerAddresses -Port $Port)
+        if ($addresses.Count -gt 0) { return [string]$addresses[0] }
         Start-Sleep -Milliseconds 300
     } while ([DateTime]::UtcNow -lt $Deadline)
-    return $false
+    return $null
+}
+
+function Start-PortRelay {
+    param([string]$ListenAddress, [object[]]$Routes, [DateTime]$Deadline)
+    if ($Routes.Count -eq 0) { return }
+    $relayPath = Join-Path $PSScriptRoot "pangya-port-relay.ps1"
+    if (-not (Test-Path -LiteralPath $relayPath -PathType Leaf)) {
+        throw "The PangYa managed port relay is missing."
+    }
+    $routesJson = ConvertTo-Json -InputObject $Routes -Depth 3 -Compress
+    $routesBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($routesJson))
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+    $startInfo.WorkingDirectory = $PSScriptRoot
+    $startInfo.Arguments = ('-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{0}" -ListenAddress "{1}" -RoutesBase64 "{2}"' -f $relayPath, $ListenAddress, $routesBase64)
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.RedirectStandardInput = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $startInfo
+    if (-not $process.Start()) { throw "Could not start the PangYa managed port relay" }
+    $state = [pscustomobject]@{
+        Name = "relay"
+        Port = 0
+        ListenerAddress = $ListenAddress
+        Process = $process
+        StdoutTask = $process.StandardOutput.ReadLineAsync()
+        StderrTask = $process.StandardError.ReadLineAsync()
+    }
+    $script:services += $state
+    Write-SupervisorLine ("[supervisor] STARTED service=relay pid={0} routes={1}" -f $process.Id, $Routes.Count)
+    foreach ($route in $Routes) {
+        do {
+            Drain-ServiceOutput
+            if ($process.HasExited) { throw "The PangYa managed port relay exited during startup" }
+            if (Test-TcpPort -HostName $ListenAddress -Port ([int]$route.listen_port)) { break }
+            Start-Sleep -Milliseconds 200
+        } while ([DateTime]::UtcNow -lt $Deadline)
+        if (-not (Test-TcpPort -HostName $ListenAddress -Port ([int]$route.listen_port))) {
+            throw "The PangYa managed port relay did not open TCP port $($route.listen_port)"
+        }
+    }
 }
 
 function Start-ServiceSet {
@@ -167,12 +266,30 @@ function Start-ServiceSet {
     $deadline = [DateTime]::UtcNow.AddSeconds($StartupTimeoutSeconds)
     foreach ($definition in $serviceDefinitions) {
         Start-ServiceProcess -Definition $definition
-        if (-not (Wait-PortReady -ServiceName $definition.Name -Port $definition.Port -Deadline $deadline)) {
+        $listenerAddress = Wait-ServiceListener -ServiceName $definition.Name -Port $definition.Port -Deadline $deadline
+        if ([string]::IsNullOrWhiteSpace($listenerAddress)) {
             throw "PangYa $($definition.Name) service did not open TCP port $($definition.Port)"
         }
+        ($script:services | Where-Object Name -eq $definition.Name | Select-Object -First 1).ListenerAddress = $listenerAddress
+    }
+    $publicAddress = Resolve-PrimaryIPv4Address
+    $routes = @(
+        foreach ($definition in $serviceDefinitions | Where-Object Name -ne "auth") {
+            $state = $script:services | Where-Object Name -eq $definition.Name | Select-Object -First 1
+            if ($state.ListenerAddress -notin @("0.0.0.0", $publicAddress)) {
+                [pscustomobject]@{
+                    listen_port = [int]$definition.Port
+                    target_address = [string]$state.ListenerAddress
+                    target_port = [int]$definition.Port
+                }
+            }
+        }
+    )
+    if ($routes.Count -gt 0) {
+        Start-PortRelay -ListenAddress $publicAddress -Routes $routes -Deadline $deadline
     }
     $script:setStartedAt = [DateTime]::UtcNow
-    [Console]::WriteLine(("[supervisor] READY auth={0} login={1} game={2} message={3}" -f $AuthPort, $LoginPort, $GamePort, $MessagePort))
+    Write-SupervisorLine ("[supervisor] READY auth={0} login={1} game={2} message={3}" -f $AuthPort, $LoginPort, $GamePort, $MessagePort)
 }
 
 function Stop-Descendants {
@@ -219,14 +336,14 @@ function Write-ServiceStatus {
     $parts = foreach ($definition in $serviceDefinitions) {
         $state = $script:services | Where-Object Name -eq $definition.Name | Select-Object -First 1
         $running = $null -ne $state -and -not $state.Process.HasExited
-        $ready = Test-TcpPort -Port $definition.Port -TimeoutMilliseconds 200
+        $ready = Test-LocalTcpListener -Port $definition.Port
         "{0}_running={1} {0}_ready={2}" -f $definition.Name, $running.ToString().ToLowerInvariant(), $ready.ToString().ToLowerInvariant()
     }
     [Console]::WriteLine(("[supervisor] STATUS {0}" -f ($parts -join " ")))
 }
 
 try {
-    [Console]::WriteLine(("[supervisor] ROOT {0} database={1}:{2}/{3}" -f $ServerRoot, $DatabaseHost, $DatabasePort, $DatabaseName))
+    Write-SupervisorLine ("[supervisor] ROOT {0} database={1}:{2}/{3}" -f $ServerRoot, $DatabaseHost, $DatabasePort, $DatabaseName)
     Start-ServiceSet
     $inputClosed = $false
     $readTask = [Console]::In.ReadLineAsync()
@@ -268,9 +385,9 @@ try {
     }
 }
 catch {
-    [Console]::WriteLine(("[supervisor] FATAL type={0} message={1}" -f $_.Exception.GetType().FullName, $_.Exception.Message))
+    Write-SupervisorLine ("[supervisor] FATAL type={0} message={1}" -f $_.Exception.GetType().FullName, $_.Exception.Message)
     if (-not [string]::IsNullOrWhiteSpace($_.ScriptStackTrace)) {
-        [Console]::WriteLine(("[supervisor] FATAL_STACK {0}" -f ($_.ScriptStackTrace -replace "[\r\n]+", " | ")))
+        Write-SupervisorLine ("[supervisor] FATAL_STACK {0}" -f ($_.ScriptStackTrace -replace "[\r\n]+", " | "))
     }
     $script:exitCode = 1
 }

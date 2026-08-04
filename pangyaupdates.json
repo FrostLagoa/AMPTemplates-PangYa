@@ -8,5 +8,15 @@
     "UpdateSourceTarget": "{{$FullRootDir}}",
     "OverwriteExistingFiles": true,
     "SkipOnFailure": false
+  },
+  {
+    "UpdateStageName": "Install PangYa managed port relay",
+    "UpdateSourcePlatform": "Windows",
+    "UpdateSource": "FetchURL",
+    "UpdateSourceData": "https://raw.githubusercontent.com/FrostLagoa/AMPTemplates-PangYa/main/pangya-port-relay.ps1",
+    "UpdateSourceArgs": "pangya-port-relay.ps1",
+    "UpdateSourceTarget": "{{$FullRootDir}}",
+    "OverwriteExistingFiles": true,
+    "SkipOnFailure": false
   }
 ]

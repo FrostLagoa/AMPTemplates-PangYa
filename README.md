@@ -24,13 +24,35 @@ The compatible English client is PangYa US 851/852 from the preservation link
 published by `K4T/Py_Source_US`. The host-local preparation keeps the original
 client DLL as `ijl15.original.dll` and installs the open-source Rugburn v2.0
 shim. `rugburn.json` redirects client TCP ports 10103, 20202 and 30303 to
-`server.kallidos.com` without patching the packed `ProjectG.exe`. No client or
-unverified binary is included in this repository.
+`server.kallidos.com` and rewrites the retired translation and patch-list URLs
+to validated Iris compatibility routes without patching the packed
+`ProjectG.exe`. The external encrypted patch manifest is generated from the
+123 immutable client-root files and excludes local launchers, logs, provenance,
+backups and mutable Rugburn configuration. No client or unverified binary is
+included in this repository.
+Because the packed USA 852
+executable can validate its updater environment before the Rugburn shim is
+loaded, the prepared client includes the preferred `Kallidos PangYa.lnk`
+shortcut plus its internal `Start Kallidos PangYa.cmd` launcher. The launcher
+elevates first, registers `projectg700gb+.pak` as `IntegratedPak` in the 32-bit
+PangYa registry view and then sets the official USA `PANGYA_ARG` before
+starting `ProjectG.exe`; starting the packed executable directly is unsupported
+for this prepared client.
+
+The supervisor considers a service ready when its TCP port is listening on any
+local interface, rather than assuming loopback, and mirrors startup/failure
+diagnostics to `pangya-amp/server.log`. Provisioning requests the host's
+default-route IPv4 address for public services while Auth stays on loopback.
+Because the pinned legacy binaries can instead choose a Hyper-V adapter, the
+supervisor starts a user-mode TCP relay only for mismatched public listeners.
+That relay is an AMP-managed child: it appears only while the application is
+running, stops before the four services and never creates persistent Windows
+port-proxy state. Consequently, a stopped application cannot leave false
+Login, Game or Message listeners on the AMP status page.
 
 The AMP card intentionally has an empty description so its secondary line is
 reserved for the connection endpoint. Application auto-start is not enabled by
 the template. The registered Genesis Server instance uses management/SFTP
 ports 20094/20095 and keeps the application services on 7777, 10103, 20202 and
-30303. Both the controller and game application are currently stopped. During
-future maintenance, the controller may be made available without starting any
-of the four game processes or application listeners.
+30303. During maintenance, the controller may remain available without
+starting any of the four game processes or application listeners.
