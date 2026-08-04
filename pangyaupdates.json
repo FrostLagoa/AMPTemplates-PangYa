@@ -1,0 +1,12 @@
+[
+  {
+    "UpdateStageName": "Install PangYa supervisor",
+    "UpdateSourcePlatform": "Windows",
+    "UpdateSource": "FetchURL",
+    "UpdateSourceData": "https://raw.githubusercontent.com/FrostLagoa/AMPTemplates-PangYa/main/pangya-supervisor.ps1",
+    "UpdateSourceArgs": "pangya-supervisor.ps1",
+    "UpdateSourceTarget": "{{$FullRootDir}}",
+    "OverwriteExistingFiles": true,
+    "SkipOnFailure": false
+  }
+]
