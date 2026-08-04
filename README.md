@@ -19,8 +19,23 @@ shared Iris SQL identity. Credentials remain outside this repository and are
 projected only into ACL-restricted runtime configuration files because this
 historical binary has no external secret-provider support. The intended runtime
 identity is `NT AUTHORITY\NETWORK SERVICE`.
+The pinned Login Server computes MD5 from the password received from the client
+before comparing it with `account.PASSWORD`. Host provisioning must therefore
+ensure that `ProcNewUser` stores `UPPER(MD5(password))`; storing the raw input
+makes every newly provisioned account fail authentication even though the
+network path is healthy.
 
-The compatible English client is PangYa US 851/852 from the preservation link
+The deployed runtime is aligned as a single US 852 compatibility contract:
+all four services use `ServerVersion=None` and
+`ServerPacketVersion=2016110200`, while `pangya_config.ClienteVersion` is
+`852.00`. These values must be migrated together; changing only one packet or
+database value creates a client/server-version mismatch. The bounded
+`upgrade-us852 --confirm UPGRADE_PANGYA_US852` maintenance action refuses a
+running application, verifies the pinned binaries, creates an ACL-restricted
+rollback artifact and commits the four configurations plus database value as
+one validated operation.
+
+The compatible English client is PangYa US 852 from the preservation link
 published by `K4T/Py_Source_US`. The host-local preparation keeps the original
 client DLL as `ijl15.original.dll` and installs the open-source Rugburn v2.0
 shim. `rugburn.json` redirects client TCP ports 10103, 20202 and 30303 to
