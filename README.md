@@ -1,4 +1,4 @@
-# PangYa (English) AMP template
+# PangYa AMP template
 
 This public AMP template supervises an existing PangYa USA Fresh Up beta
 runtime derived from the original `Acrisio-Filho/SuperSS-Dev-USA-Beta-Build`
