@@ -35,6 +35,16 @@ running application, verifies the pinned binaries, creates an ACL-restricted
 rollback artifact and commits the four configurations plus database value as
 one validated operation.
 
+The production Game Server exposes one unrestricted channel named `Kallidos
+Channel` with `CanaisCount=1`, ID 0, capacity 200 and `CanalFlag_1=1`.
+Provisioning also normalizes the four legacy card-reader procedures that
+compared `DATETIME` columns with empty strings. They use explicit NULL
+semantics so strict MySQL 8 remains enabled; relaxing the global SQL mode is
+not a supported compatibility workaround. The confirmation-gated
+`repair-mysql8-channel --confirm REPAIR_PANGYA_MYSQL8_CHANNEL` action applies
+the procedure and channel contracts only while the application is stopped and
+keeps an ACL-restricted rollback artifact.
+
 The compatible English client is PangYa US 852 from the preservation link
 published by `K4T/Py_Source_US`. The host-local preparation keeps the original
 client DLL as `ijl15.original.dll` and installs the open-source Rugburn v2.0
