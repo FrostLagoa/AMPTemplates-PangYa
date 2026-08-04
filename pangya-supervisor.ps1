@@ -7,6 +7,28 @@ param(
     [int]$LoginPort = 10103,
     [int]$GamePort = 20202,
     [int]$MessagePort = 30303,
+    [string]$ServerDisplayName = "Kallidos PangYa",
+    [string]$ChannelName = "Kallidos Channel",
+    [int]$ChannelMaxUsers = 200,
+    [int]$ServerMaxUsers = 2000,
+    [int]$PangRate = 100,
+    [int]$ExperienceRate = 100,
+    [int]$RareItemRate = 100,
+    [int]$CookieItemRate = 100,
+    [int]$ScratchyRate = 100,
+    [int]$MasteryRate = 100,
+    [int]$TreasureRate = 100,
+    [int]$RainRate = 100,
+    [string]$AngelEventEnabled = "false",
+    [int]$ServerPropertyMask = 2048,
+    [int]$ServerFeatureBlockMask = 0,
+    [int]$ServerEventFlagMask = 0,
+    [int]$ServerIcon = 1,
+    [string]$PeriodicAnnouncementEnabled = "false",
+    [string]$PeriodicAnnouncementText = "Welcome to Kallidos PangYa!",
+    [int]$PeriodicAnnouncementRepeatCount = 1000,
+    [int]$PeriodicAnnouncementIntervalMinutes = 30,
+    [string]$DatabaseClientPath = "D:\Laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe",
     [string]$AutoRestart = "true",
     [int]$RestartLimit = 3,
     [int]$RestartBackoffSeconds = 5,
@@ -45,6 +67,161 @@ function Assert-SafePath {
         throw "$Name is invalid"
     }
     return [IO.Path]::GetFullPath($Value)
+}
+
+function Assert-SafeDisplayText {
+    param([string]$Value, [string]$Name, [int]$MaximumBytes)
+    if ($null -eq $Value) { throw "$Name is required" }
+    $normalized = $Value.Trim()
+    if ([string]::IsNullOrWhiteSpace($normalized) -or $normalized.IndexOf('"') -ge 0 -or $normalized.IndexOf("`r") -ge 0 -or $normalized.IndexOf("`n") -ge 0) {
+        throw "$Name is invalid"
+    }
+    $encoding = [Text.Encoding]::GetEncoding(1252)
+    $bytes = $encoding.GetBytes($normalized)
+    if ($bytes.Length -gt $MaximumBytes -or $encoding.GetString($bytes) -ne $normalized) {
+        throw "$Name exceeds the legacy PangYa text contract"
+    }
+    return $normalized
+}
+
+function Set-LegacyConfigValue {
+    param([string]$Text, [string]$Key, [object]$Value, [bool]$Quoted)
+    $pattern = "(?m)^(?<prefix>\s*" + [Regex]::Escape($Key) + "\s*=\s*)(?<value>[^,\r\n]*)(?<suffix>\s*,[^\r\n]*)(?<ending>\r?)$"
+    $matches = [Regex]::Matches($Text, $pattern)
+    if ($matches.Count -ne 1) { throw "PangYa configuration key $Key was not found exactly once" }
+    $serialized = if ($Quoted) { '"' + [string]$Value + '"' } else { [string]$Value }
+    return [Regex]::Replace(
+        $Text,
+        $pattern,
+        [Text.RegularExpressions.MatchEvaluator]{ param($match) $match.Groups["prefix"].Value + $serialized + $match.Groups["suffix"].Value + $match.Groups["ending"].Value },
+        1
+    )
+}
+
+function Get-LegacyConfigSecret {
+    param([string]$Text, [string]$Key)
+    $pattern = '(?m)^\s*' + [Regex]::Escape($Key) + '\s*=\s*"(?<value>[^"\r\n]*)"'
+    $match = [Regex]::Match($Text, $pattern)
+    if (-not $match.Success -or [string]::IsNullOrWhiteSpace($match.Groups["value"].Value)) {
+        throw "PangYa protected database setting $Key is unavailable"
+    }
+    return $match.Groups["value"].Value
+}
+
+function ConvertTo-Latin1HexLiteral {
+    param([string]$Value)
+    $encoding = [Text.Encoding]::GetEncoding(1252)
+    $bytes = $encoding.GetBytes($Value)
+    if ($encoding.GetString($bytes) -ne $Value) { throw "The announcement contains unsupported characters" }
+    return "0x" + [BitConverter]::ToString($bytes).Replace("-", "")
+}
+
+function Invoke-PangYaSql {
+    param([string]$Sql, [string]$UserName, [string]$Password)
+    if (-not (Test-Path -LiteralPath $DatabaseClientPath -PathType Leaf)) {
+        throw "The configured Laragon mysql.exe was not found"
+    }
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $DatabaseClientPath
+    $startInfo.Arguments = ('--protocol=TCP --host="{0}" --port={1} --user="{2}" --database="{3}" --default-character-set=latin1 --batch --skip-column-names --silent' -f $DatabaseHost, $DatabasePort, $UserName, $DatabaseName)
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.RedirectStandardInput = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.EnvironmentVariables["MYSQL_PWD"] = $Password
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $startInfo
+    try {
+        if (-not $process.Start()) { throw "Could not start the Laragon MySQL client" }
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
+        $process.StandardInput.Write($Sql)
+        $process.StandardInput.Close()
+        if (-not $process.WaitForExit(30000)) {
+            $process.Kill()
+            throw "Timed out while synchronizing the PangYa announcement"
+        }
+        $stderr = $stderrTask.GetAwaiter().GetResult().Trim()
+        [void]$stdoutTask.GetAwaiter().GetResult()
+        if ($process.ExitCode -ne 0) {
+            throw "The PangYa announcement sync failed: $stderr"
+        }
+    }
+    finally {
+        $process.Dispose()
+    }
+}
+
+function Sync-GameServerConfiguration {
+    $gameConfigPath = Join-Path (Join-Path $ServerRoot "Game Server") "Config.ini"
+    $encoding = [Text.Encoding]::GetEncoding(1252)
+    $text = [IO.File]::ReadAllText($gameConfigPath, $encoding)
+    $settings = @(
+        [pscustomobject]@{ Key = "ServerName"; Value = $ServerDisplayName; Quoted = $true },
+        [pscustomobject]@{ Key = "ServerProperty"; Value = $ServerPropertyMask; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerFlag"; Value = $ServerFeatureBlockMask; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerEventFlag"; Value = $ServerEventFlagMask; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerRareItemRate"; Value = $RareItemRate; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerCookieItemRate"; Value = $CookieItemRate; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerPangRate"; Value = $PangRate; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerExpRate"; Value = $ExperienceRate; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerAngelEvent"; Value = $(if ($angelEvent) { 1 } else { 0 }); Quoted = $false },
+        [pscustomobject]@{ Key = "ServerScratchRate"; Value = $ScratchyRate; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerMasteryRate"; Value = $MasteryRate; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerTreasureRate"; Value = $TreasureRate; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerChuvaRate"; Value = $RainRate; Quoted = $false },
+        [pscustomobject]@{ Key = "ServerIcon"; Value = $ServerIcon; Quoted = $false },
+        [pscustomobject]@{ Key = "GSMaxUser"; Value = $ServerMaxUsers; Quoted = $false },
+        [pscustomobject]@{ Key = "CanaisCount"; Value = 1; Quoted = $false },
+        [pscustomobject]@{ Key = "CanalName_1"; Value = $ChannelName; Quoted = $true },
+        [pscustomobject]@{ Key = "CanalMaxUser_1"; Value = $ChannelMaxUsers; Quoted = $false },
+        [pscustomobject]@{ Key = "CanalID_1"; Value = 0; Quoted = $false },
+        [pscustomobject]@{ Key = "CanalFlag_1"; Value = 1; Quoted = $false }
+    )
+    foreach ($setting in $settings) {
+        $text = Set-LegacyConfigValue -Text $text -Key $setting.Key -Value $setting.Value -Quoted $setting.Quoted
+    }
+    $existing = [IO.File]::ReadAllText($gameConfigPath, $encoding)
+    if ($text -ne $existing) {
+        [IO.File]::WriteAllText($gameConfigPath, $text, $encoding)
+        Write-SupervisorLine "[supervisor] CONFIG_SYNCED server-and-gameplay-settings"
+    }
+    return $text
+}
+
+function Sync-ManagedAnnouncement {
+    param([string]$GameConfigText)
+    $databaseUser = Get-LegacyConfigSecret -Text $GameConfigText -Key "DB_USER_NAME"
+    $databasePassword = Get-LegacyConfigSecret -Text $GameConfigText -Key "DB_USER_PASS"
+    if ($databaseUser -notmatch '^[A-Za-z0-9_.@-]{1,128}$') {
+        throw "The protected PangYa database username is invalid"
+    }
+    $magic = 1230193235
+    $cleanup = @"
+DELETE FROM pangya_notice_list
+WHERE notice_id IN (
+    SELECT arg1 FROM pangya_command
+    WHERE command_id = 0 AND arg4 = $magic AND arg5 = 1
+);
+DELETE FROM pangya_command
+WHERE command_id = 0 AND arg4 = $magic AND arg5 = 1;
+"@
+    if (-not $announcementEnabled) {
+        Invoke-PangYaSql -Sql $cleanup -UserName $databaseUser -Password $databasePassword
+        Write-SupervisorLine "[supervisor] ANNOUNCEMENT disabled"
+        return
+    }
+    $messageHex = ConvertTo-Latin1HexLiteral $PeriodicAnnouncementText
+    $sql = $cleanup + @"
+INSERT INTO pangya_notice_list(message, replayCount, refreshTime)
+VALUES(CONVERT($messageHex USING latin1), $PeriodicAnnouncementRepeatCount, $PeriodicAnnouncementIntervalMinutes);
+SET @iris_notice_id := LAST_INSERT_ID();
+INSERT INTO pangya_command(command_id, arg1, arg4, arg5, target, reserveDate, valid)
+VALUES(0, @iris_notice_id, $magic, 1, $GamePort, NOW(), 1);
+"@
+    Invoke-PangYaSql -Sql $sql -UserName $databaseUser -Password $databasePassword
+    Write-SupervisorLine ("[supervisor] ANNOUNCEMENT enabled interval_minutes={0} repetitions={1}" -f $PeriodicAnnouncementIntervalMinutes, $PeriodicAnnouncementRepeatCount)
 }
 
 function Test-TcpPort {
@@ -101,18 +278,37 @@ function Resolve-PrimaryIPv4Address {
 }
 
 $restartEnabled = ConvertTo-Switch $AutoRestart
+$angelEvent = ConvertTo-Switch $AngelEventEnabled
+$announcementEnabled = ConvertTo-Switch $PeriodicAnnouncementEnabled
 $RestartLimit = [Math]::Max(0, [Math]::Min(10, $RestartLimit))
 $RestartBackoffSeconds = [Math]::Max(1, [Math]::Min(60, $RestartBackoffSeconds))
 $StartupTimeoutSeconds = [Math]::Max(30, [Math]::Min(900, $StartupTimeoutSeconds))
 $ShutdownTimeoutSeconds = [Math]::Max(10, [Math]::Min(120, $ShutdownTimeoutSeconds))
 $ServerRoot = Assert-SafePath $ServerRoot "ServerRoot"
+$DatabaseClientPath = Assert-SafePath $DatabaseClientPath "DatabaseClientPath"
 $DatabaseHost = $DatabaseHost.Trim()
 $DatabaseName = $DatabaseName.Trim()
+$ServerDisplayName = Assert-SafeDisplayText $ServerDisplayName "ServerDisplayName" 40
+$ChannelName = Assert-SafeDisplayText $ChannelName "ChannelName" 64
+if ($announcementEnabled) {
+    $PeriodicAnnouncementText = Assert-SafeDisplayText $PeriodicAnnouncementText "PeriodicAnnouncementText" 1024
+}
 if ([string]::IsNullOrWhiteSpace($DatabaseHost) -or $DatabaseHost.IndexOf('"') -ge 0) { throw "DatabaseHost is invalid" }
 if ([string]::IsNullOrWhiteSpace($DatabaseName) -or $DatabaseName -notmatch '^[A-Za-z0-9_]{1,64}$') { throw "DatabaseName is invalid" }
 foreach ($port in @($DatabasePort, $AuthPort, $LoginPort, $GamePort, $MessagePort)) {
     if ($port -lt 1 -or $port -gt 65535) { throw "A configured port is invalid" }
 }
+foreach ($rate in @($PangRate, $ExperienceRate, $RareItemRate, $CookieItemRate, $ScratchyRate, $MasteryRate, $TreasureRate, $RainRate)) {
+    if ($rate -lt 1 -or $rate -gt 32767) { throw "A configured PangYa rate is outside 1..32767" }
+}
+if ($ChannelMaxUsers -lt 1 -or $ChannelMaxUsers -gt 2000) { throw "ChannelMaxUsers is outside 1..2000" }
+if ($ServerMaxUsers -lt 1 -or $ServerMaxUsers -gt 32767) { throw "ServerMaxUsers is outside 1..32767" }
+if ($ServerPropertyMask -lt 0 -or $ServerFeatureBlockMask -lt 0 -or $ServerEventFlagMask -lt 0 -or $ServerEventFlagMask -gt 32767) {
+    throw "A configured PangYa property or flag mask is invalid"
+}
+if ($ServerIcon -lt 0 -or $ServerIcon -gt 32767) { throw "ServerIcon is outside 0..32767" }
+if ($PeriodicAnnouncementRepeatCount -lt 1 -or $PeriodicAnnouncementRepeatCount -gt 1000000) { throw "PeriodicAnnouncementRepeatCount is outside 1..1000000" }
+if ($PeriodicAnnouncementIntervalMinutes -lt 1 -or $PeriodicAnnouncementIntervalMinutes -gt 10080) { throw "PeriodicAnnouncementIntervalMinutes is outside 1..10080" }
 
 $serviceDefinitions = @(
     [pscustomobject]@{ Name = "auth"; Folder = "Auth Server"; Executable = "Auth Server.exe"; Port = $AuthPort },
@@ -344,6 +540,12 @@ function Write-ServiceStatus {
 
 try {
     Write-SupervisorLine ("[supervisor] ROOT {0} database={1}:{2}/{3}" -f $ServerRoot, $DatabaseHost, $DatabasePort, $DatabaseName)
+    if (-not (Test-TcpPort -HostName $DatabaseHost -Port $DatabasePort -TimeoutMilliseconds 1000)) {
+        throw "Laragon MySQL is unavailable at ${DatabaseHost}:$DatabasePort"
+    }
+    Assert-RuntimeIntegrity
+    $gameConfigText = Sync-GameServerConfiguration
+    Sync-ManagedAnnouncement -GameConfigText $gameConfigText
     Start-ServiceSet
     $inputClosed = $false
     $readTask = [Console]::In.ReadLineAsync()
