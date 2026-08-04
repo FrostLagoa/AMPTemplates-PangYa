@@ -29,4 +29,8 @@ unverified binary is included in this repository.
 
 The AMP card intentionally has an empty description so its secondary line is
 reserved for the connection endpoint. Application auto-start is not enabled by
-the template.
+the template. The registered Genesis Server instance uses management/SFTP
+ports 20094/20095 and keeps the application services on 7777, 10103, 20202 and
+30303. Both the controller and game application are currently stopped. During
+future maintenance, the controller may be made available without starting any
+of the four game processes or application listeners.
