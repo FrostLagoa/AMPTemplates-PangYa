@@ -263,6 +263,12 @@ function Sync-LegacyDeveloperAnnouncement {
             $stream.Dispose()
         }
     }
+    $allowedGameHashes = @($expectedHashes["Game Server\Game Server.exe"])
+    $desiredHash = if ($legacyAnnouncementEnabled) { $allowedGameHashes[0] } else { $allowedGameHashes[1] }
+    $actualHash = (Get-FileHash -LiteralPath $gameServerPath -Algorithm SHA256).Hash
+    if (-not $actualHash.Equals($desiredHash, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "The PangYa legacy announcement state failed its post-write integrity check"
+    }
     $state = if ($legacyAnnouncementEnabled) { "enabled" } else { "disabled" }
     Write-SupervisorLine "[supervisor] LEGACY_DEVELOPER_ANNOUNCEMENT $state"
 }
