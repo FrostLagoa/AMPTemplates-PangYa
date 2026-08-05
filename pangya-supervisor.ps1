@@ -7,6 +7,7 @@ param(
     [int]$LoginPort = 10103,
     [int]$GamePort = 20202,
     [int]$MessagePort = 30303,
+    [string]$AdvertisedServerHost = "server.kallidos.com",
     [string]$ServerDisplayName = "Kallidos PangYa",
     [string]$ChannelName = "Kallidos Channel",
     [int]$ChannelMaxUsers = 200,
@@ -100,6 +101,72 @@ function Set-LegacyConfigValue {
     )
 }
 
+function Sync-AmpManagedLegacyConfiguration {
+    $managedRoot = Join-Path $ServerRoot "managed"
+    $specifications = @(
+        [pscustomobject]@{ Fragment = "auth-char.ini"; Target = "Auth Server\Config.ini"; Keys = @("ServerName", "ServerVersion") },
+        [pscustomobject]@{ Fragment = "auth-int32.ini"; Target = "Auth Server\Config.ini"; Keys = @("ServerPacketVersion", "ServerGUID", "GSMaxUser") },
+        [pscustomobject]@{ Fragment = "login-char.ini"; Target = "Login Server\Config.ini"; Keys = @("ServerName", "ServerVersion") },
+        [pscustomobject]@{ Fragment = "login-int32.ini"; Target = "Login Server\Config.ini"; Keys = @("ServerPacketVersion", "ServerGUID", "GSMaxUser", "CreateAccount", "AccessFlag") },
+        [pscustomobject]@{ Fragment = "game-char40.ini"; Target = "Game Server\Config.ini"; Keys = @("ServerName", "ServerVersion") },
+        [pscustomobject]@{ Fragment = "game-int32.ini"; Target = "Game Server\Config.ini"; Keys = @("ServerPacketVersion", "ServerGUID", "ServerProperty", "GSMaxUser", "CanaisCount") },
+        [pscustomobject]@{ Fragment = "game-int64.ini"; Target = "Game Server\Config.ini"; Keys = @("ServerFlag") },
+        [pscustomobject]@{ Fragment = "game-int16.ini"; Target = "Game Server\Config.ini"; Keys = @("ServerEventFlag", "ServerRareItemRate", "ServerCookieItemRate", "ServerPangRate", "ServerExpRate", "ServerAngelEvent", "ServerScratchRate", "ServerMasteryRate", "ServerTreasureRate", "ServerChuvaRate", "ServerIcon", "CanalMaxUser_1", "CanalMaxUser_2", "CanalMaxUser_3") },
+        [pscustomobject]@{ Fragment = "game-char64.ini"; Target = "Game Server\Config.ini"; Keys = @("CanalName_1", "CanalName_2", "CanalName_3") },
+        [pscustomobject]@{ Fragment = "game-int8.ini"; Target = "Game Server\Config.ini"; Keys = @("CanalID_1", "CanalID_2", "CanalID_3") },
+        [pscustomobject]@{ Fragment = "message-char.ini"; Target = "Message Server\Config.ini"; Keys = @("ServerName", "ServerVersion") },
+        [pscustomobject]@{ Fragment = "message-int32.ini"; Target = "Message Server\Config.ini"; Keys = @("ServerPacketVersion", "ServerGUID", "ServerProperty", "GSMaxUser") }
+    )
+    $legacyEncoding = [Text.Encoding]::GetEncoding(1252)
+    $fragmentEncoding = [Text.UTF8Encoding]::new($false, $true)
+    $changedFiles = 0
+    $changedSettings = 0
+    foreach ($specification in $specifications) {
+        $fragmentPath = Join-Path $managedRoot $specification.Fragment
+        if (-not (Test-Path -LiteralPath $fragmentPath -PathType Leaf)) { continue }
+        $targetPath = Join-Path $ServerRoot $specification.Target
+        $text = [IO.File]::ReadAllText($targetPath, $legacyEncoding)
+        $original = $text
+        foreach ($line in [IO.File]::ReadAllLines($fragmentPath, $fragmentEncoding)) {
+            if ([string]::IsNullOrWhiteSpace($line)) { continue }
+            $fragmentMatch = [Regex]::Match(
+                $line,
+                '^\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?<value>"[^"\r\n]*"|-?\d+|true|false)\s*,\s*(?<type>CHAR|INT8|INT16|INT32|INT64)\s*,\s*(?<size>\d+)\s*;\s*$'
+            )
+            if (-not $fragmentMatch.Success) { throw "PangYa managed fragment $($specification.Fragment) contains an invalid line" }
+            $key = $fragmentMatch.Groups["key"].Value
+            if ($specification.Keys -notcontains $key) { throw "PangYa managed fragment $($specification.Fragment) contains unexpected key $key" }
+            $managedLine = $line
+            $managedValue = $fragmentMatch.Groups["value"].Value
+            if ($managedValue -in @("true", "false")) {
+                if ($fragmentMatch.Groups["type"].Value -eq "CHAR") {
+                    throw "PangYa managed fragment $($specification.Fragment) contains a boolean CHAR value"
+                }
+                $numericValue = if ($managedValue -eq "true") { "1" } else { "0" }
+                $managedLine = "{0} = {1}, {2}, {3};" -f $key, $numericValue, $fragmentMatch.Groups["type"].Value, $fragmentMatch.Groups["size"].Value
+            }
+            $targetPattern = '(?m)^\s*' + [Regex]::Escape($key) + '\s*=.*?(?<ending>\r?)$'
+            $targetMatches = [Regex]::Matches($text, $targetPattern)
+            if ($targetMatches.Count -ne 1) { throw "PangYa configuration key $key was not found exactly once" }
+            if ($legacyEncoding.GetString($legacyEncoding.GetBytes($managedLine)) -ne $managedLine) { throw "PangYa managed value for $key is not representable in Windows-1252" }
+            $text = [Regex]::Replace(
+                $text,
+                $targetPattern,
+                [Text.RegularExpressions.MatchEvaluator]{ param($match) $managedLine + $match.Groups["ending"].Value },
+                1
+            )
+            $changedSettings++
+        }
+        if ($text -ne $original) {
+            [IO.File]::WriteAllText($targetPath, $text, $legacyEncoding)
+            $changedFiles++
+        }
+    }
+    if ($changedFiles -gt 0) {
+        Write-SupervisorLine ("[supervisor] AMP_CONFIG_SYNCED files={0} settings={1}" -f $changedFiles, $changedSettings)
+    }
+}
+
 function Get-LegacyConfigSecret {
     param([string]$Text, [string]$Key)
     $pattern = '(?m)^\s*' + [Regex]::Escape($Key) + '\s*=\s*"(?<value>[^"\r\n]*)"'
@@ -190,6 +257,46 @@ function Sync-GameServerConfiguration {
         Write-SupervisorLine "[supervisor] CONFIG_SYNCED server-and-gameplay-settings"
     }
     return $text
+}
+
+function Resolve-AdvertisedServerIPv4 {
+    param([string]$HostName)
+    $candidate = $HostName.Trim()
+    if ([string]::IsNullOrWhiteSpace($candidate) -or $candidate.IndexOf('"') -ge 0) {
+        throw "AdvertisedServerHost is invalid"
+    }
+    $parsed = $null
+    if ([Net.IPAddress]::TryParse($candidate, [ref]$parsed)) {
+        if ($parsed.AddressFamily -ne [Net.Sockets.AddressFamily]::InterNetwork) {
+            throw "AdvertisedServerHost must resolve to IPv4"
+        }
+        return $parsed.ToString()
+    }
+    $addresses = @(
+        [Net.Dns]::GetHostAddresses($candidate) |
+            Where-Object AddressFamily -eq ([Net.Sockets.AddressFamily]::InterNetwork) |
+            Sort-Object IPAddressToString -Unique
+    )
+    if ($addresses.Count -ne 1) {
+        throw "AdvertisedServerHost must resolve to exactly one IPv4 address"
+    }
+    return $addresses[0].ToString()
+}
+
+function Sync-AdvertisedServerAddress {
+    param([string]$Address)
+    $encoding = [Text.Encoding]::GetEncoding(1252)
+    $changed = 0
+    foreach ($relativePath in @("Login Server\Config.ini", "Game Server\Config.ini", "Message Server\Config.ini")) {
+        $configPath = Join-Path $ServerRoot $relativePath
+        $text = [IO.File]::ReadAllText($configPath, $encoding)
+        $updated = Set-LegacyConfigValue -Text $text -Key "ServerIP" -Value $Address -Quoted $true
+        if ($updated -ne $text) {
+            [IO.File]::WriteAllText($configPath, $updated, $encoding)
+            $changed++
+        }
+    }
+    Write-SupervisorLine ("[supervisor] ADVERTISED_ENDPOINT address={0} files_changed={1}" -f $Address, $changed)
 }
 
 function Sync-ManagedAnnouncement {
@@ -339,6 +446,8 @@ $DatabaseClientPath = Assert-SafePath $DatabaseClientPath "DatabaseClientPath"
 & (Join-Path $PSScriptRoot "amp-config-link.ps1") -ServerRoot $ServerRoot
 $DatabaseHost = $DatabaseHost.Trim()
 $DatabaseName = $DatabaseName.Trim()
+$AdvertisedServerHost = $AdvertisedServerHost.Trim()
+$advertisedServerAddress = Resolve-AdvertisedServerIPv4 -HostName $AdvertisedServerHost
 $ServerDisplayName = Assert-SafeDisplayText $ServerDisplayName "ServerDisplayName" 40
 $ChannelName = Assert-SafeDisplayText $ChannelName "ChannelName" 64
 if ($announcementEnabled) {
@@ -600,6 +709,8 @@ try {
     }
     Assert-RuntimeIntegrity
     Sync-LegacyDeveloperAnnouncement
+    Sync-AmpManagedLegacyConfiguration
+    Sync-AdvertisedServerAddress -Address $advertisedServerAddress
     $gameConfigText = Sync-GameServerConfiguration
     Sync-ManagedAnnouncement -GameConfigText $gameConfigText
     if ($ValidateOnly) {

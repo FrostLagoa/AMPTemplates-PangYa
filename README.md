@@ -37,7 +37,7 @@ one validated operation.
 
 The production Game Server exposes one unrestricted channel named `Kallidos
 Channel` with `CanaisCount=1`, ID 0, capacity 200 and `CanalFlag_1=1`.
-AMP config version 5 exposes the safe operational subset of the legacy Game
+AMP exposes the safe operational subset of the legacy Game
 Server configuration: server/channel identity and capacity, Pang, experience,
 rare-item, Cookie-item, Scratchy, mastery, treasure and rain rates, Angel
 event state, server icon and the advanced property/event/feature masks. The
@@ -121,6 +121,14 @@ shortcut, logs, captures, temporary files and the preservation archive's old
 shortcuts that call `Start Kallidos PangYa.cmd`; silent installation skips
 launching the game.
 
+The legacy protocol stores a numeric IPv4 address in an 18-byte server-list
+field and cannot advertise a hostname directly. Config version 7 therefore
+resolves the editable `Public server hostname` (default
+`server.kallidos.com`) on every start and writes the resulting IPv4 address to
+the Login, Game and Message service advertisements before any binary launches.
+The initial Rugburn endpoint can remain DDNS-based; the supervisor handles the
+numeric handoff that occurs after login.
+
 By default, the external artifact and checksum are written to
 `D:\PangYa\Installer\Output\Kallidos-PangYa-US852-Setup.exe` and the adjacent
 `.sha256` file. The package is currently unsigned, so Windows may show an
@@ -148,12 +156,20 @@ ports 20094/20095 and keeps the application services on 7777, 10103, 20202 and
 30303. During maintenance, the controller may remain available without
 starting any of the four game processes or application listeners.
 
-AMP config version 6 expands that page to 61 fields. Forty-six fields are
+AMP config version 7 expands that page to 62 fields. Forty-six fields are
 persisted directly in the Auth, Login, Game and Message `Config.ini` files;
-the remaining fields control the supervisor, managed announcement and Laragon
+the remaining fields control endpoint advertisement, player slots, the
+supervisor, managed announcement and Laragon
 integration. The MetaConfig writers preserve the legacy quoted/unquoted type
 and byte-width suffixes. A verified `runtime-config` junction targets the real
 `D:\PangYa\Server` tree, so Save edits the server files rather than a shadow
 copy. Database usernames/passwords and integration-managed connection wiring
 are excluded and remain under the existing protected configuration/Vault
 contract.
+
+The slot fields remain operator-editable, but the tested USA 852 compatibility
+baseline is 200 channel slots and 2000 server slots. A live external acceptance
+test showed that 20/20 is rendered by this legacy client as `Server is full`
+even with no players connected; restoring 200/2000 immediately allowed the
+same account to enter. The AMP field descriptions retain that warning without
+hiding or locking lower values.

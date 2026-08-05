@@ -2,7 +2,7 @@
   "game": "PangYa",
   "category": "PangYa:gamepad",
   "generated_settings": 46,
-  "total_fields": 61,
+  "total_fields": 62,
   "config_files": [
     "Auth Server/Config.ini",
     "Game Server/Config.ini",

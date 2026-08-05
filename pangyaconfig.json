@@ -1,5 +1,20 @@
 [
   {
+    "DisplayName": "Public server hostname",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Connection:network-wired:1",
+    "Description": "Hostname or IPv4 address announced to internet clients. Hostnames are resolved to the protocol's required IPv4 value whenever the server starts.",
+    "Keywords": "pangya,public,ddns,hostname,endpoint",
+    "FieldName": "AdvertisedServerHost",
+    "InputType": "text",
+    "ParamFieldName": "AdvertisedServerHost",
+    "DefaultValue": "server.kallidos.com",
+    "Placeholder": "server.kallidos.com",
+    "Required": true,
+    "EnumValues": {},
+    "IncludeInCommandLine": true
+  },
+  {
     "DisplayName": "Server name",
     "Category": "PangYa:gamepad",
     "Subcategory": "Identity and channel:users:1",
@@ -30,10 +45,10 @@
     "IncludeInCommandLine": true
   },
   {
-    "DisplayName": "Channel capacity",
+    "DisplayName": "Player slots (channel)",
     "Category": "PangYa:gamepad",
     "Subcategory": "Identity and channel:users:1",
-    "Description": "Maximum simultaneous players shown for the unrestricted channel.",
+    "Description": "Maximum simultaneous players shown for the unrestricted channel. The verified US 852 client baseline is 200; smaller values may be reported as Server is full by this legacy client.",
     "Keywords": "pangya,channel,capacity,players",
     "FieldName": "ChannelMaxUsers",
     "InputType": "number",
@@ -45,10 +60,10 @@
     "IncludeInCommandLine": true
   },
   {
-    "DisplayName": "Server capacity",
+    "DisplayName": "Player slots (server)",
     "Category": "PangYa:gamepad",
     "Subcategory": "Identity and channel:users:1",
-    "Description": "Maximum simultaneous players accepted by the Game Server.",
+    "Description": "Maximum simultaneous players accepted by the Game Server. The verified US 852 client baseline is 2000; smaller values may be reported as Server is full by this legacy client.",
     "Keywords": "pangya,server,capacity,players",
     "FieldName": "ServerMaxUsers",
     "InputType": "number",

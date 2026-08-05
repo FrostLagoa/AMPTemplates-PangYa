@@ -1,6 +1,6 @@
 [
   {
-    "ConfigFile": "runtime-config/Auth Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/auth-char.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = \"{1}\", CHAR, 40;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\"(?<value>.*?)\"\\s*,\\s*CHAR\\s*,\\s*40\\s*;\\s*$",
@@ -15,7 +15,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Auth Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/auth-int32.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = {1}, INT32, 4;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT32\\s*,\\s*4\\s*;\\s*$",
@@ -31,7 +31,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Login Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/login-char.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = \"{1}\", CHAR, 40;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\"(?<value>.*?)\"\\s*,\\s*CHAR\\s*,\\s*40\\s*;\\s*$",
@@ -46,7 +46,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Login Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/login-int32.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = {1}, INT32, 4;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT32\\s*,\\s*4\\s*;\\s*$",
@@ -64,7 +64,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/game-char40.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = \"{1}\", CHAR, 40;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\"(?<value>.*?)\"\\s*,\\s*CHAR\\s*,\\s*40\\s*;\\s*$",
@@ -79,7 +79,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/game-int32.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = {1}, INT32, 4;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT32\\s*,\\s*4\\s*;\\s*$",
@@ -97,7 +97,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/game-int64.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = {1}, INT64, 8;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT64\\s*,\\s*8\\s*;\\s*$",
@@ -111,7 +111,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/game-int16.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = {1}, INT16, 2;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT16\\s*,\\s*2\\s*;\\s*$",
@@ -138,7 +138,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/game-char64.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = \"{1}\", CHAR, 64;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\"(?<value>.*?)\"\\s*,\\s*CHAR\\s*,\\s*64\\s*;\\s*$",
@@ -154,7 +154,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Game Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/game-int8.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = {1}, INT8, 1;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT8\\s*,\\s*1\\s*;\\s*$",
@@ -170,7 +170,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Message Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/message-char.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = \"{1}\", CHAR, 40;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\"(?<value>.*?)\"\\s*,\\s*CHAR\\s*,\\s*40\\s*;\\s*$",
@@ -185,7 +185,7 @@
     ]
   },
   {
-    "ConfigFile": "runtime-config/Message Server/Config.ini",
+    "ConfigFile": "runtime-config/managed/message-int32.ini",
     "ConfigType": "kvp",
     "ConfigFormat": "{0} = {1}, INT32, 4;",
     "ConfigFormatRegex": "^\\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?<value>[^,]*?)\\s*,\\s*INT32\\s*,\\s*4\\s*;\\s*$",
