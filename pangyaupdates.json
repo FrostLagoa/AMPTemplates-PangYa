@@ -1,20 +1,10 @@
 [
   {
-    "UpdateStageName": "Install PangYa supervisor",
+    "UpdateStageName": "Install PangYa lifecycle controller",
     "UpdateSourcePlatform": "Windows",
     "UpdateSource": "FetchURL",
-    "UpdateSourceData": "https://raw.githubusercontent.com/FrostLagoa/AMPTemplates-PangYa/main/pangya-supervisor.ps1",
-    "UpdateSourceArgs": "pangya-supervisor.ps1",
-    "UpdateSourceTarget": "{{$FullRootDir}}",
-    "OverwriteExistingFiles": true,
-    "SkipOnFailure": false
-  },
-  {
-    "UpdateStageName": "Install PangYa managed port relay",
-    "UpdateSourcePlatform": "Windows",
-    "UpdateSource": "FetchURL",
-    "UpdateSourceData": "https://raw.githubusercontent.com/FrostLagoa/AMPTemplates-PangYa/main/pangya-port-relay.ps1",
-    "UpdateSourceArgs": "pangya-port-relay.ps1",
+    "UpdateSourceData": "https://raw.githubusercontent.com/FrostLagoa/AMPTemplates-PangYa/main/pangya-lifecycle.ps1",
+    "UpdateSourceArgs": "pangya-lifecycle.ps1",
     "UpdateSourceTarget": "{{$FullRootDir}}",
     "OverwriteExistingFiles": true,
     "SkipOnFailure": false

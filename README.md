@@ -5,14 +5,13 @@ runtime derived from the original `Acrisio-Filho/SuperSS-Dev-USA-Beta-Build`
 release. It does not redistribute the proprietary client, server archive,
 database dump or game assets.
 
-The default runtime is `D:\PangYa\Server`. One foreground PowerShell
-supervisor starts Auth, Message, Game and Login in dependency order, redirects
-their output to the AMP Console and avoids separate terminal windows. It checks
-Laragon MySQL before launch, verifies pinned SHA-256 hashes for the four server
-executables and their bundled MySQL/ZIP libraries, monitors TCP 7777, 10103,
-20202 and 30303, and restarts the complete service set at most three times after
-an unexpected failure. An AMP stop requests `exit` from every service before a
-bounded fallback stop.
+The default runtime is `D:\PangYa\Server`. The config-version-8 lifecycle is
+deliberately minimal: AMP starts Auth, Message, Game and Login in dependency
+order, waits once for TCP 7777, 10103, 20202 and 30303, and reports a failed
+start when a native service exits. AMP stop uses its ordinary process-tree
+shutdown. There is no PowerShell supervisor, console relay, automatic restart
+loop, binary patching or SQL-side announcement worker in the production path.
+The PangYa binaries and their own logs remain the source of diagnostics.
 
 The host-local runtime uses the single Laragon schema `pangya` and the existing
 shared Iris SQL identity. Credentials remain outside this repository and are
@@ -25,46 +24,23 @@ ensure that `ProcNewUser` stores `UPPER(MD5(password))`; storing the raw input
 makes every newly provisioned account fail authentication even though the
 network path is healthy.
 
-The deployed runtime is aligned as a single US 852 compatibility contract:
-all four services use `ServerVersion=None` and
-`ServerPacketVersion=2016110200`, while `pangya_config.ClienteVersion` is
-`852.00`. These values must be migrated together; changing only one packet or
-database value creates a client/server-version mismatch. The bounded
-`upgrade-us852 --confirm UPGRADE_PANGYA_US852` maintenance action refuses a
-running application, verifies the pinned binaries, creates an ACL-restricted
-rollback artifact and commits the four configurations plus database value as
-one validated operation.
+The active rebuild baseline is the original SuperSS USA 851 contract: all four
+service configurations use `ServerPacketVersion=2015031200` and the initialized
+database/client pair is USA 851. Packet, binary and database versions must move
+together; changing only a value in one layer is unsupported and causes a
+client/server mismatch. The previous US 852 deployment material is retained
+only as rollback/reference material while issue #154 validates multiplayer.
 
-The production Game Server exposes one unrestricted channel named `Kallidos
-Channel` with `CanaisCount=1`, ID 0, capacity 200 and `CanalFlag_1=1`.
-AMP exposes the safe operational subset of the legacy Game
-Server configuration: server/channel identity and capacity, Pang, experience,
-rare-item, Cookie-item, Scratchy, mastery, treasure and rain rates, Angel
-event state, server icon and the advanced property/event/feature masks. The
-supervisor validates every value and projects it into `Game Server\Config.ini`
-before any child process starts. Only that one protected file grants
-`NETWORK SERVICE` modify access; the three other credential-bearing service
-configurations remain read-only to the runtime identity.
+AMP exposes the supported legacy service and channel settings through managed
+configuration fragments. On every start the lifecycle applies those fragments
+to the four native `Config.ini` files before launching any binary. Database
+credentials remain outside the AMP form and stay protected in the native
+configuration files.
 
-The historical Game Server executable also contains its own developer-credit
-announcement (`Esse Server foi Desenvolvido por Acrisio xD.`). In the pinned
-build, its timer immediate is the four-byte value `600000` at file offset
-`0x95AB8`. AMP exposes a separate reversible toggle for that legacy credit,
-disabled by default. The supervisor accepts only the pinned original and
-managed-disabled hashes, validates the surrounding machine-code signature and
-changes only that timer value (`600000` / `INFINITE`); an unknown binary or
-unexpected byte sequence is rejected before launch.
-
-The same page controls one optional administrator-defined periodic announcement through PangYa's
-native `pangya_notice_list` / `pangya_command` queue. Text, repetition count
-and interval are editable. The managed row is marked with reserved command
-arguments so disabling or replacing it never removes notices created by an
-administrator or another tool. The default is disabled. Database credentials
-are read from the protected Game Server configuration and passed to the local
-Laragon client only in its child-process environment; they are never stored in
-AMP settings, command-line arguments or logs. This managed notice is independent
-from the executable's legacy developer-credit announcement and its console
-startup banner.
+The config form does not alter native binaries, run a SQL announcement worker or
+modify legacy developer-credit behavior. Any native announcement is therefore
+owned by the unmodified server build and should be changed only through a
+separately reviewed game-server change.
 
 Provisioning also normalizes the four legacy card-reader procedures that
 compared `DATETIME` columns with empty strings. They use explicit NULL
@@ -88,10 +64,14 @@ Because the packed USA 852
 executable can validate its updater environment before the Rugburn shim is
 loaded, the prepared client includes the preferred `Kallidos PangYa.lnk`
 shortcut plus its internal `Start Kallidos PangYa.cmd` launcher. The launcher
-elevates first, registers `projectg700gb+.pak` as `IntegratedPak` in the 32-bit
-PangYa registry view and then sets the official USA `PANGYA_ARG` before
-starting `ProjectG.exe`; starting the packed executable directly is unsupported
-for this prepared client.
+sets the official USA `PANGYA_ARG` and applies the process-local
+`RunAsInvoker` compatibility layer before starting `ProjectG.exe`. This is
+required because the original packed executable embeds a
+`requireAdministrator` manifest, while its WinINet compatibility requests must
+run in the interactive player's network profile. The machine-wide installer,
+not the launcher, registers `projectg700gb+.pak` as `IntegratedPak` in the
+32-bit PangYa registry view. Starting the packed executable directly is
+unsupported for this prepared client.
 
 ## Public client installer
 
@@ -107,27 +87,56 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\build_pangya_client_
 The build script verifies pinned hashes for `ProjectG.exe`, both `ijl15` DLLs,
 the language data and the final 851 patch, validates the supported launcher and
 refuses any Rugburn route that does not use `server.kallidos.com` on 10103,
-20202 and 30303. The public installer never writes a hosts-file entry or embeds
-the current public IPv4 address. DNS/DDNS therefore remains responsible for
-mapping `server.kallidos.com` to whichever public address currently belongs to
-Genesis Server.
+20202 and 30303. It also rejects any definition that permits a per-user install
+or any launcher that elevates the game or modifies machine state. Setup 852.0.1
+requires an administrator, installs for all users under `Program Files (x86)`,
+and writes the required 32-bit HKLM value during installation. The public
+installer never writes a hosts-file entry or embeds the current public IPv4
+address. DNS/DDNS therefore remains responsible for mapping
+`server.kallidos.com` to whichever public address currently belongs to Genesis
+Server.
 
 The special client under `G:\Games\KallidosPangYa` on Genesis-Windows is not a
 public installer source and must not have its local-only connection behavior
 reconciled with this package. It may be inspected read-only to verify immutable
 US 852 runtime assets. The Inno package deliberately excludes that deployment's
 shortcut, logs, captures, temporary files and the preservation archive's old
-`uninstall.exe`. It creates fresh per-user Start Menu and optional Desktop
-shortcuts that call `Start Kallidos PangYa.cmd`; silent installation skips
-launching the game.
+`uninstall.exe`. It creates fresh all-users Start Menu and optional Desktop
+shortcuts that call `Start Kallidos PangYa.cmd`; the optional post-install
+launch explicitly returns to the original interactive user and silent
+installation skips launching the game.
+
+### Client-side `string load failed` diagnosis
+
+Setup 852.0.1 passed the translation stage on Windows 11 but a clean Windows
+10 22H2 VM reproduced the failure. Protocol-pinned OpenSSL checks established
+the actual boundary: the Cloudflare edge rejected TLS 1.2 with alert 70 while
+accepting TLS 1.3. The legacy WinINet path can negotiate the latter on Windows
+11 but needs TLS 1.2 on Windows 10. Setting the Cloudflare zone minimum to TLS
+1.2 fixed Windows 10 without disabling TLS 1.3 or changing the setup, packed
+client, Rugburn DLL, registry contract or HTTPS URLs.
+
+The operator confirmed the incident resolved. For future unrelated failures,
+run `scripts/diagnose_pangya_client_wininet.cmd` as the affected interactive
+user. Its x86 probe uses the same WinINet API, reload flag, URL, expected
+24,324-byte length and SHA-256 as `ProjectG.exe`, repeats the request to expose
+intermittent timeouts and writes `pangya-wininet-report.txt`.
+
+The report also audits, without changing anything, the former per-user folder,
+the machine-wide folder, VirtualStore overrides, user/common shortcuts, both
+32-bit and 64-bit PangYa/uninstall registry views and relevant AppCompat layer
+entries. It redacts the user-profile prefix and never records response content,
+proxy addresses, credentials, authorization headers or secrets. Do not delete
+or rewrite any reported residue until its exact path and hash have been
+reviewed. Do not copy Schannel provider values from another Windows release or
+modify global TLS registry state as an installer workaround.
 
 The legacy protocol stores a numeric IPv4 address in an 18-byte server-list
-field and cannot advertise a hostname directly. Config version 7 therefore
-resolves the editable `Public server hostname` (default
-`server.kallidos.com`) on every start and writes the resulting IPv4 address to
-the Login, Game and Message service advertisements before any binary launches.
-The initial Rugburn endpoint can remain DDNS-based; the supervisor handles the
-numeric handoff that occurs after login.
+field and cannot advertise a hostname directly. Config version 8 resolves the
+editable `Public server hostname` (default `server.kallidos.com`) once on every
+start and writes that IPv4 address to the Login, Game and Message service
+advertisements before any binary launches. The initial Rugburn endpoint can
+remain DDNS-based.
 
 By default, the external artifact and checksum are written to
 `D:\PangYa\Installer\Output\Kallidos-PangYa-US852-Setup.exe` and the adjacent
@@ -136,16 +145,16 @@ unknown-publisher or SmartScreen warning until an approved code-signing
 certificate is configured. Do not replace that limitation with a self-signed
 public distribution certificate.
 
-The supervisor considers a service ready when its TCP port is listening on any
-local interface, rather than assuming loopback, and mirrors startup/failure
-diagnostics to `pangya-amp/server.log`. Provisioning requests the host's
-default-route IPv4 address for public services while Auth stays on loopback.
-Because the pinned legacy binaries can instead choose a Hyper-V adapter, the
-supervisor starts a user-mode TCP relay only for mismatched public listeners.
-That relay is an AMP-managed child: it appears only while the application is
-running, stops before the four services and never creates persistent Windows
-port-proxy state. Consequently, a stopped application cannot leave false
-Login, Game or Message listeners on the AMP status page.
+The lifecycle considers a service ready when its required TCP port is
+listening on any local interface. The pinned legacy binaries currently bind
+the public services to a Hyper-V Default Switch address rather than the LAN
+address. When that occurs, configure three host-owned, TCP-only Windows
+port-proxy rules that listen on the specific LAN address for 10103, 20202 and
+30303 and forward to the corresponding native listener. They are not an AMP
+child and must not change VMware/Hyper-V adapters, routes or interface metrics.
+Keep an elevated, host-local rollback script that removes only those three
+rules. Do not use a wildcard listen address or publish site-specific network
+addresses in this template repository.
 
 The AMP card intentionally has an empty description so its secondary line is
 reserved for the connection endpoint. Application auto-start is not enabled by
@@ -156,20 +165,17 @@ ports 20094/20095 and keeps the application services on 7777, 10103, 20202 and
 30303. During maintenance, the controller may remain available without
 starting any of the four game processes or application listeners.
 
-AMP config version 7 expands that page to 62 fields. Forty-six fields are
-persisted directly in the Auth, Login, Game and Message `Config.ini` files;
-the remaining fields control endpoint advertisement, player slots, the
-supervisor, managed announcement and Laragon
-integration. The MetaConfig writers preserve the legacy quoted/unquoted type
-and byte-width suffixes. A verified `runtime-config` junction targets the real
-`D:\PangYa\Server` tree, so Save edits the server files rather than a shadow
-copy. Database usernames/passwords and integration-managed connection wiring
-are excluded and remain under the existing protected configuration/Vault
-contract.
+AMP config version 8 persists 46 supported settings as managed fragments for
+the Auth, Login, Game and Message `Config.ini` files. The lifecycle merges them
+into the real runtime tree on start while preserving the legacy quoted/unquoted
+type and byte-width suffixes. A verified `runtime-config` junction targets
+`D:\PangYa\Server`, so Save does not write to a shadow copy. Database
+usernames/passwords and integration-managed connection wiring are excluded and
+remain under the existing protected configuration/Vault contract.
 
-The slot fields remain operator-editable, but the tested USA 852 compatibility
-baseline is 200 channel slots and 2000 server slots. A live external acceptance
-test showed that 20/20 is rendered by this legacy client as `Server is full`
-even with no players connected; restoring 200/2000 immediately allowed the
-same account to enter. The AMP field descriptions retain that warning without
-hiding or locking lower values.
+The slot fields remain operator-editable. The legacy client renders 20/20 as
+`Server is full` even with no players connected; the practical baseline is 200
+channel slots and 2000 server slots. The AMP field descriptions retain that
+warning without hiding or locking lower values. The existing US 852 installer
+material is not a substitute for the USA 851 multiplayer validation client and
+must be rebuilt/revalidated separately before publishing it again.
