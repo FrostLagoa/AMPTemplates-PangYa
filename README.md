@@ -24,18 +24,24 @@ ensure that `ProcNewUser` stores `UPPER(MD5(password))`; storing the raw input
 makes every newly provisioned account fail authentication even though the
 network path is healthy.
 
-The active rebuild baseline is the original SuperSS USA 851 contract: all four
-service configurations use `ServerPacketVersion=2015031200` and the initialized
-database/client pair is USA 851. Packet, binary and database versions must move
-together; changing only a value in one layer is unsupported and causes a
-client/server mismatch. The previous US 852 deployment material is retained
-only as rollback/reference material while issue #154 validates multiplayer.
+The verified server binary/data source is the original SuperSS USA beta build,
+while the deployed compatible client is PangYa USA 852. All four service
+configurations use `ServerPacketVersion=2016110200`, and the initialized
+database/game-list contract advertises `ClienteVersion=852.00`. Packet, binary
+and database versions must move together; changing only one layer is
+unsupported and causes a client/server mismatch. The provisioned USA 851
+material is retained only as rollback/reference material while issue #154
+validates multiplayer.
 
 AMP exposes the supported legacy service and channel settings through managed
 configuration fragments. On every start the lifecycle applies those fragments
 to the four native `Config.ini` files before launching any binary. Database
 credentials remain outside the AMP form and stay protected in the native
 configuration files.
+The stopped-runtime USA 852 migration also updates AMP's persisted
+`GenericModule.kvp` `App.AppSettings` source. This is required because ADS
+recreates the managed fragments from that source when its instance controller
+starts; changing only an already-generated fragment would be reverted.
 
 The config form does not alter native binaries, run a SQL announcement worker or
 modify legacy developer-credit behavior. Any native announcement is therefore

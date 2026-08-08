@@ -48,7 +48,7 @@
     "DisplayName": "Player slots (channel)",
     "Category": "PangYa:gamepad",
     "Subcategory": "Identity and channel:users:1",
-    "Description": "Maximum simultaneous players shown for the unrestricted channel. The US 851 baseline is 200; smaller values may be reported as Server is full by this legacy client.",
+    "Description": "Maximum simultaneous players shown for the unrestricted channel. The USA 852 baseline is 200; smaller values may be reported as Server is full by this legacy client.",
     "Keywords": "pangya,channel,capacity,players",
     "FieldName": "ChannelMaxUsers",
     "InputType": "number",
@@ -63,7 +63,7 @@
     "DisplayName": "Player slots (server)",
     "Category": "PangYa:gamepad",
     "Subcategory": "Identity and channel:users:1",
-    "Description": "Maximum simultaneous players accepted by the Game Server. The US 851 baseline is 2000; smaller values may be reported as Server is full by this legacy client.",
+    "Description": "Maximum simultaneous players accepted by the Game Server. The USA 852 baseline is 2000; smaller values may be reported as Server is full by this legacy client.",
     "Keywords": "pangya,server,capacity,players",
     "FieldName": "ServerMaxUsers",
     "InputType": "number",
@@ -534,7 +534,7 @@
     "InputType": "number",
     "ParamFieldName": "CfgPangyaAuthServerConfigIniServerPacketVersion",
     "IncludeInCommandLine": false,
-    "DefaultValue": "2015031200",
+    "DefaultValue": "2016110200",
     "EnumValues": {}
   },
   {
@@ -599,7 +599,7 @@
     "InputType": "number",
     "ParamFieldName": "CfgPangyaLoginServerConfigIniServerPacketVersion",
     "IncludeInCommandLine": false,
-    "DefaultValue": "2015031200",
+    "DefaultValue": "2016110200",
     "EnumValues": {}
   },
   {
@@ -677,7 +677,7 @@
     "InputType": "number",
     "ParamFieldName": "CfgPangyaGameServerConfigIniServerPacketVersion",
     "IncludeInCommandLine": false,
-    "DefaultValue": "2015031200",
+    "DefaultValue": "2016110200",
     "EnumValues": {}
   },
   {
@@ -833,7 +833,7 @@
     "InputType": "number",
     "ParamFieldName": "CfgPangyaMessageServerConfigIniServerPacketVersion",
     "IncludeInCommandLine": false,
-    "DefaultValue": "2015031200",
+    "DefaultValue": "2016110200",
     "EnumValues": {}
   },
   {
