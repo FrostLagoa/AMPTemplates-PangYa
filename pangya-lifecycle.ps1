@@ -111,7 +111,7 @@ function Sync-AmpManagedLegacyConfiguration {
         [pscustomobject]@{ Fragment = "login-char.ini"; Target = "Login Server\Config.ini"; Keys = @("ServerName", "ServerVersion") },
         [pscustomobject]@{ Fragment = "login-int32.ini"; Target = "Login Server\Config.ini"; Keys = @("ServerPacketVersion", "ServerGUID", "GSMaxUser", "CreateAccount", "AccessFlag") },
         [pscustomobject]@{ Fragment = "game-char40.ini"; Target = "Game Server\Config.ini"; Keys = @("ServerName", "ServerVersion") },
-        [pscustomobject]@{ Fragment = "game-int32.ini"; Target = "Game Server\Config.ini"; Keys = @("ServerPacketVersion", "ServerGUID", "ServerProperty", "GSMaxUser", "CanaisCount") },
+        [pscustomobject]@{ Fragment = "game-int32.ini"; Target = "Game Server\Config.ini"; Keys = @("ServerPacketVersion", "ServerGUID", "ServerProperty", "GSMaxUser", "CanaisCount", "CanalFlag_1") },
         [pscustomobject]@{ Fragment = "game-int64.ini"; Target = "Game Server\Config.ini"; Keys = @("ServerFlag") },
         [pscustomobject]@{ Fragment = "game-int16.ini"; Target = "Game Server\Config.ini"; Keys = @("ServerEventFlag", "ServerRareItemRate", "ServerCookieItemRate", "ServerPangRate", "ServerExpRate", "ServerAngelEvent", "ServerScratchRate", "ServerMasteryRate", "ServerTreasureRate", "ServerChuvaRate", "ServerIcon", "CanalMaxUser_1", "CanalMaxUser_2", "CanalMaxUser_3") },
         [pscustomobject]@{ Fragment = "game-char64.ini"; Target = "Game Server\Config.ini"; Keys = @("CanalName_1", "CanalName_2", "CanalName_3") },

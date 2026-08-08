@@ -720,6 +720,19 @@
     "EnumValues": {}
   },
   {
+    "DisplayName": "Canal access flag 1",
+    "Category": "PangYa:gamepad",
+    "Subcategory": "Game Server:server:12",
+    "Description": "Persisted in Game Server/Config.ini. Use 1 for the unrestricted channel; 2048 limits the channel to beginners.",
+    "Keywords": "canalflag,channel,access,free",
+    "FieldName": "CfgPangyaGameServerConfigIniCanalFlag1",
+    "InputType": "number",
+    "ParamFieldName": "CfgPangyaGameServerConfigIniCanalFlag1",
+    "IncludeInCommandLine": false,
+    "DefaultValue": "1",
+    "EnumValues": {}
+  },
+  {
     "DisplayName": "Canal Name 2",
     "Category": "PangYa:gamepad",
     "Subcategory": "Game Server:server:12",

@@ -171,13 +171,20 @@ ports 20094/20095 and keeps the application services on 7777, 10103, 20202 and
 30303. During maintenance, the controller may remain available without
 starting any of the four game processes or application listeners.
 
-AMP config version 8 persists 46 supported settings as managed fragments for
+AMP config version 8 persists 47 supported settings as managed fragments for
 the Auth, Login, Game and Message `Config.ini` files. The lifecycle merges them
 into the real runtime tree on start while preserving the legacy quoted/unquoted
 type and byte-width suffixes. A verified `runtime-config` junction targets
 `D:\PangYa\Server`, so Save does not write to a shadow copy. Database
 usernames/passwords and integration-managed connection wiring are excluded and
 remain under the existing protected configuration/Vault contract.
+
+The first channel's access flag is also a managed setting. The production
+default is `CanalFlag_1=1`, which exposes the single normal/free channel.
+`2048` restricts it to beginners and can make ordinary room creation appear as
+a generic client maintenance error. The stopped-runtime repair updates both
+the native configuration and ADS's `GenericModule.kvp` setting source, so an
+instance-controller restart cannot restore the restrictive value.
 
 The slot fields remain operator-editable. The legacy client renders 20/20 as
 `Server is full` even with no players connected; the practical baseline is 200

@@ -37,7 +37,7 @@ App.LinuxCommandLineArgs=
 App.WindowsCommandLineArgs=
 App.CommandLineArgs=-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{{$FullRootDir}}pangya-lifecycle.ps1" -ServerRoot "{{ServerRoot}}" -AdvertisedServerHost "{{AdvertisedServerHost}}" -StartupTimeoutSeconds {{StartupTimeoutSeconds}}
 App.UseLinuxIOREDIR=False
-App.AppSettings={"AdvertisedServerHost":"server.kallidos.com","ServerRoot":"D:\\PangYa\\Server","StartupTimeoutSeconds":"60"}
+App.AppSettings={"AdvertisedServerHost":"server.kallidos.com","ServerRoot":"D:\\PangYa\\Server","StartupTimeoutSeconds":"60","CfgPangyaGameServerConfigIniCanalFlag1":"{{CfgPangyaGameServerConfigIniCanalFlag1}}"}
 App.EnvironmentVariables={}
 App.CommandLineParameterFormat=-{0}={1}
 App.CommandLineParameterDelimiter=
